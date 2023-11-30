@@ -18,4 +18,14 @@ client.on("messageCreate", async (message) => {
     if(message.content === "!test") {
         message.reply("Hello, World!");
     }
+
+    if(message.content === "!poll") {
+        message.reply({
+            content:"New Poll",
+            components: [
+                
+            ],
+            ephemeral:true
+        })
+    }
 })
