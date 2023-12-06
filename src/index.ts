@@ -1,8 +1,7 @@
-import dotenv from "dotenv";
-import { Client, IntentsBitField } from "discord.js";
-import { register } from "./register-commands";
+require("dotenv").config();
+const { Client, IntentsBitField } = require("discord.js");
+const { register } = require("./register-commands.ts");
 
-dotenv.config();
 const client = new Client({
     intents:[
         IntentsBitField.Flags.Guilds,
