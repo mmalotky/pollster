@@ -1,8 +1,11 @@
+const { SlashCommandBuilder } = require("discord.js");
+
 module.exports = {
-    name: "poll",
-    description: "create a new poll",
-    run: async (interaction ) => {
-        interaction.reply({
+    data: new SlashCommandBuilder()
+        .setName("poll")
+        .setDescription("Start a new poll"),
+    async execute(interaction) {
+        await interaction.reply({
             ephemeral: true,
             content: "New Poll"
         })

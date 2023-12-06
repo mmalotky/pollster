@@ -1,15 +1,17 @@
 require("dotenv").config();
-const { REST, Routes } = require("discord.js");
+const { REST, Routes, Collection } = require("discord.js");
 const fs = require("node:fs");
 const path = require("node:path");
 
 const commandFolderPath = path.join(__dirname, 'commands');
 const commandsFolder = fs.readdirSync(commandFolderPath);
-var commands = new Array();
+module.exports.commands = new Collection();
+let commandsJSON = new Array();
 for( const file of commandsFolder) {
     const filePath = path.join(commandFolderPath, file);
     const command = require(filePath);
-    commands.push(command);
+    module.exports.commands.set(command.data.name, command);
+    commandsJSON.push(command.data.toJSON());
 }
 
 const rest = new REST({version:'10'});
@@ -20,10 +22,10 @@ module.exports.register = () => {
     try {
         console.log("Registering commands...");
 
-        if(process.env.CLIENT_ID && process.env.GUILD_ID) {
+        if(process.env.CLIENT_ID && process.env.SERVER_ID) {
             rest.put(
-                Routes.applicationGuildCommands(process.env.CLIENT_ID, process.env.GUILD_ID),
-                {body: commands}
+                Routes.applicationGuildCommands(process.env.CLIENT_ID, process.env.SERVER_ID),
+                {body: commandsJSON}
             )
 
             console.log("...Commands Registered");
