@@ -12,7 +12,7 @@ const client = new Client({
 });
 client.login(process.env.TOKEN);
 
-client.once(Events.Ready, () => {
+client.once(Events.ClientReady, () => {
     console.log("Pollster Ready");
     register();
 });
