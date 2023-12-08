@@ -1,16 +1,29 @@
 {
   "name": "pollster",
   "version": "1.0.0",
-  "description": "",
+  "description": "Discord Bot for creating polls.",
   "main": "index.js",
+  "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node --loader ts-node/esm ./src/index.ts",
+    "lint": "eslint .",
+    "lint-watch": "esw --ext .ts -w ."
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
+  "devDependencies": {
+    "eslint": "*",
+    "eslint-watch": "*",
+    "@typescript-eslint/parser": "*",
+    "@typescript-eslint/eslint-plugin": "*",
+    "eslint-plugin-tsdoc": "*"
+  },
   "dependencies": {
-    "discord.js": "^14.14.1",
-    "dotenv": "^16.3.1"
+    "discord.js": "*",
+    "dotenv": "*",
+    "ts-node": "*",
+    "typescript": "*"
   }
 }
