@@ -13,12 +13,6 @@ export default class PollCommand implements Command {
     
     async execute(interaction:ChatInputCommandInteraction) {
         const newPollModal = new NewPollModal();
-
         await interaction.showModal(newPollModal);
-        
-        await interaction.reply({
-            ephemeral: true,
-            content: "New Poll"
-        })
     }
 }
