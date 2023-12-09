@@ -1,5 +1,6 @@
 import { ChatInputCommandInteraction, SlashCommandBuilder } from "discord.js";
-import Command from "./Command";
+import Command from "./Command.js";
+import NewPollModal from "../components/NewPollModal.js";
 
 export default class PollCommand implements Command {
     private data = new SlashCommandBuilder()
@@ -11,6 +12,10 @@ export default class PollCommand implements Command {
     }
     
     async execute(interaction:ChatInputCommandInteraction) {
+        const newPollModal = new NewPollModal();
+
+        await interaction.showModal(newPollModal);
+        
         await interaction.reply({
             ephemeral: true,
             content: "New Poll"

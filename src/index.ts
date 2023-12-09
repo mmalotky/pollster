@@ -19,11 +19,11 @@ class Init {
 
 
 		this.client.once(Events.ClientReady, () => {
-			console.log("Pollster Ready");
+			console.log("[INFO] Pollster Starting");
 			this.commandsHandler.register();
+			this.handleCommands();
+			console.log("[INFO] Pollster Online")
 		});
-
-		this.handleCommands();
 	}
 
 	handleCommands() {
@@ -34,7 +34,7 @@ class Init {
 				.filter(c => c.getData().name === interaction.commandName)[0];
 		
 			if (!command) {
-				console.error(`No command matching ${interaction.commandName} was found.`);
+				console.error(`[ERR] No command matching ${interaction.commandName} was found.`);
 				return;
 			}
 		
