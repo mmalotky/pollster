@@ -1,23 +1,23 @@
 import { ButtonBuilder, ButtonInteraction, ButtonStyle } from "discord.js";
-import NewPollModal from "./NewPollModal.js";
+import NewPollModal, { NewPoll } from "./NewPollModal.js";
 
 export default class NewPollReturnButton extends ButtonBuilder {
     
-    constructor(payload:string) {
+    constructor(id:string) {
         super();
-        this.setCustomId(`NewPollReturn:${payload}`);
+        this.setCustomId(`NewPollReturn:${id}`);
         this.setLabel("Edit Selections");
         this.setStyle(ButtonStyle.Danger);
     }
 
     static async submit(
         interaction:ButtonInteraction, 
-        payload:{title:string, options:string, dateTime:string}
+        payload:NewPoll
     ) {
         const modal = new NewPollModal(
             payload.title,
             payload.options,
-            new Date(payload.dateTime)
+            payload.dateTime
         );
 
         await interaction.showModal(modal);

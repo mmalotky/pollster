@@ -1,9 +1,13 @@
 import { ModalBuilder, TextInputBuilder } from "@discordjs/builders";
 import { ActionRowBuilder, ButtonBuilder, ModalSubmitInteraction, TextInputStyle } from "discord.js";
 import NewPollReturnButton from "./NewPollReturnButton.js";
+import { DataHandlerObject } from "../DataHandler.js";
+
+export type NewPoll = {title:string, options:string, dateTime:Date};
 
 export default class NewPollModal extends ModalBuilder {
     private id = `NewPollModal:${crypto.randomUUID()}`;
+
     private titleInput = new TextInputBuilder()
         .setCustomId("TitleInput")
         .setLabel("Title")
@@ -72,12 +76,8 @@ export default class NewPollModal extends ModalBuilder {
     }
 
     private setToDefaultEndDateTime() {
-        const dateTime = new Date();
-        const tomorrow = new Date(dateTime)
-        tomorrow.setDate(dateTime.getDate() + 1);
-
-        const {date, time} = this.stringifyDateTime(tomorrow);
-
+        const dateTime = NewPollModal.getTomorrow();
+        const {date, time} = this.stringifyDateTime(dateTime);
         this.endDateInput.setValue(date);
         this.endTimeInput.setValue(time);
     }
@@ -98,31 +98,34 @@ export default class NewPollModal extends ModalBuilder {
         }
 
         const optionsValue = parseInt(options);
-        if(!optionsValue || optionsValue < 1) errors.push("Options");
+        if(!optionsValue || optionsValue < 2) errors.push("Options");
 
         const dateTime = this.parseDateTime(date, time);
         if(!dateTime || dateTime.getTime() < Date.now()) errors.push("Date/Time");
 
-        const payload = JSON.stringify({
+        const dataID = crypto.randomUUID();
+        const newPoll:NewPoll = {
             title:title,
             options:options, 
-            dateTime:(dateTime? dateTime: new Date())
-        });
+            dateTime:(dateTime? dateTime: this.getTomorrow())
+        };
+        DataHandlerObject.addNewPoll(dataID, newPoll);
         
-        const returnButton = new NewPollReturnButton(payload);
+        const returnButton = new NewPollReturnButton(dataID);
         const ar = new ActionRowBuilder<ButtonBuilder>();
         ar.addComponents(returnButton);
 
         if(errors.length > 0) {
             await interaction.reply({
-                content: `Invalid New Poll: ${errors}`, 
+                content: `Invalid:${errors}`, 
                 components: [ar],
                 ephemeral: true
             });
         }
         else {
             await interaction.reply({
-                content: `Valid New Poll: ${JSON.stringify(payload)}`, 
+                content: `Poll:${JSON.stringify(newPoll)}`, 
+                components: [ar],
                 ephemeral: true
             });
         }
@@ -186,5 +189,12 @@ export default class NewPollModal extends ModalBuilder {
         const time = `${hour}:${minute}`;
 
         return {date:date, time:time};
+    }
+
+    private static getTomorrow() {
+        const dateTime = new Date();
+        const tomorrow = new Date(dateTime)
+        tomorrow.setDate(dateTime.getDate() + 1);
+        return tomorrow;
     }
 }

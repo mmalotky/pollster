@@ -1,8 +1,9 @@
 import dotenv from "dotenv";
-import { Client, IntentsBitField, Events } from "discord.js";
+import { Client, IntentsBitField, Events, Collection } from "discord.js";
 import CommandsHandler from "./CommandsHandler.js";
 import NewPollModal from "./components/NewPollModal.js";
 import NewPollReturnButton from "./components/NewPollReturnButton.js";
+import { DataHandlerObject } from "./DataHandler.js";
 
 class Init {
 	private client = new Client({
@@ -30,7 +31,7 @@ class Init {
 		});
 	}
 
-	handleCommands() {
+	private handleCommands() {
 		this.client.on(Events.InteractionCreate, async (interaction) => {
 			if(!interaction.isChatInputCommand()) return;
 			const command = this.commandsHandler
@@ -55,7 +56,7 @@ class Init {
 		});
 	}
 
-	handleModals() {
+	private handleModals() {
 		this.client.on(Events.InteractionCreate, async (interaction) => {
 			if(!interaction.isModalSubmit()) return;
 			const modalId = interaction.customId;
@@ -66,18 +67,30 @@ class Init {
 		});
 	}
 
-	handleButtons() {
+	private handleButtons() {
 		this.client.on(Events.InteractionCreate, async (interation) => {
 			if(!interation.isButton()) return;
 			const buttonId = interation.customId;
 
 			if(buttonId.startsWith("NewPollReturn")) {
-				const payload:{title:string, options:string, dateTime:string} = JSON.parse(buttonId.substring(14));
-				await NewPollReturnButton.submit(interation, payload);
+				const dataID = buttonId.substring(14);
+				const payload = DataHandlerObject.getNewPoll(dataID);
+
+				if(payload) {
+					await NewPollReturnButton.submit(interation, payload);
+				}
+				else {
+					console.log(`[ERR] New Poll ${dataID} data not found.`);
+					await interation.reply({
+						content:"Poll data was lost or corrupted. Please make a new poll.",
+						ephemeral:true
+					})
+				}
 			}
 		});
 	}
 }
+
 new Init().main();
 
 
