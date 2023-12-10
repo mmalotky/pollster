@@ -1,5 +1,6 @@
 import { ModalBuilder, TextInputBuilder } from "@discordjs/builders";
-import { ActionRowBuilder, TextInputStyle } from "discord.js";
+import { ActionRowBuilder, ButtonBuilder, ModalSubmitInteraction, TextInputStyle } from "discord.js";
+import NewPollReturnButton from "./NewPollReturnButton.js";
 
 export default class NewPollModal extends ModalBuilder {
     private id = `NewPollModal:${crypto.randomUUID()}`;
@@ -8,7 +9,7 @@ export default class NewPollModal extends ModalBuilder {
         .setLabel("Title")
         .setRequired(true)
         .setMinLength(1)
-        .setMaxLength(50)
+        .setMaxLength(20)
         .setStyle(TextInputStyle.Short);
     
     private optionsInput = new TextInputBuilder()
@@ -35,12 +36,29 @@ export default class NewPollModal extends ModalBuilder {
         .setMaxLength(5)
         .setStyle(TextInputStyle.Short)
 
-    constructor() {
+    constructor(title?:string, options?:string, dateTime?:Date) {
         super();
+
+        if(!title || !options || !dateTime) {
+            this.titleInput.setValue("My Poll");
+            this.optionsInput.setValue("2");
+            this.setToDefaultEndDateTime();
+        }
+        else {
+            const { date, time } = this.stringifyDateTime(dateTime);
+
+            this.titleInput.setValue(title);
+            this.optionsInput.setValue(options);
+            this.endDateInput.setValue(date);
+            this.endTimeInput.setValue(time);
+        }
+
+        this.build();
+    }
+
+    private build() {
         this.setCustomId(this.id);
         this.setTitle("New Modal");
-        this.setToDefaultEndDateTime();
-        this.titleInput.setValue("My Poll");
 
         const r1 = new ActionRowBuilder<TextInputBuilder>()
             .addComponents(this.titleInput);
@@ -58,22 +76,115 @@ export default class NewPollModal extends ModalBuilder {
         const tomorrow = new Date(dateTime)
         tomorrow.setDate(dateTime.getDate() + 1);
 
-        let month = (tomorrow.getMonth() + 1).toLocaleString();
+        const {date, time} = this.stringifyDateTime(tomorrow);
+
+        this.endDateInput.setValue(date);
+        this.endTimeInput.setValue(time);
+    }
+
+    static async submit(interaction:ModalSubmitInteraction) {
+        const errors:string[] = [];
+        const title = interaction.fields.getTextInputValue("TitleInput");
+        const options = interaction.fields.getTextInputValue("OptionsInput");
+        const date = interaction.fields.getTextInputValue("EndDateInput");
+        const time = interaction.fields.getTextInputValue("EndTimeInput");
+
+        if(!title || !options || !date || !time) {
+            await interaction.reply({ 
+                content: 'There was an error while submiting this modal!', 
+                ephemeral: true 
+            });
+            return;
+        }
+
+        const optionsValue = parseInt(options);
+        if(!optionsValue || optionsValue < 1) errors.push("Options");
+
+        const dateTime = this.parseDateTime(date, time);
+        if(!dateTime || dateTime.getTime() < Date.now()) errors.push("Date/Time");
+
+        const payload = JSON.stringify({
+            title:title,
+            options:options, 
+            dateTime:(dateTime? dateTime: new Date())
+        });
+        
+        const returnButton = new NewPollReturnButton(payload);
+        const ar = new ActionRowBuilder<ButtonBuilder>();
+        ar.addComponents(returnButton);
+
+        if(errors.length > 0) {
+            await interaction.reply({
+                content: `Invalid New Poll: ${errors}`, 
+                components: [ar],
+                ephemeral: true
+            });
+        }
+        else {
+            await interaction.reply({
+                content: `Valid New Poll: ${JSON.stringify(payload)}`, 
+                ephemeral: true
+            });
+        }
+    }
+
+    static parseDateTime(date:string, time:string) {
+		const reDate = /^[0-9]{2}\/[0-9]{2}\/[0-9]{4}$/;
+		const reTime = /^[0-9]{2}:[0-9]{2}$/;
+		if(!date.match(reDate) || !time.match(reTime)) {
+			console.log("[ERR] Invalid date or time.");
+			return;
+		}
+		const dateValues = date.split("/");
+		const timeValues = time.split(":");
+
+		const month = parseInt(dateValues[0]);
+		if(month < 1 || month > 12) {
+			console.log("[ERR] Invalid Month");
+			return;
+		}
+		const day = parseInt(dateValues[1]);
+		if(day < 1 || day > 31) {
+			console.log("[ERR] Invalid date");
+			return;
+		}
+		const hour = parseInt(timeValues[0]);
+		if(hour < 0 || hour > 24) {
+			console.log("[ERR] Invalid Hour")
+			return;
+		}
+		const minute = parseInt(timeValues[1]);
+		if(minute < 0 || minute > 59) {
+			console.log("[ERR] Invaild Minute");
+			return;
+		}
+		
+		const dateTimeFormat = `${dateValues[2]}-${dateValues[0]}-${dateValues[1]}T${timeValues[0]}:${timeValues[1]}`;
+		const dateTime = new Date(dateTimeFormat);
+		if(isNaN(dateTime.getTime())) {
+			console.log("[ERR] Could not parse date: " + dateTimeFormat);
+			return;
+		}
+		
+		return dateTime;
+	}
+
+    private stringifyDateTime(dateTime:Date) {
+        let month = (dateTime.getMonth() + 1).toLocaleString();
         month = month.length == 1? "0" + month : month;
-        let day = tomorrow.getDate().toLocaleString();
+        let day = dateTime.getDate().toLocaleString();
         day = day.length == 1? "0" + day : day;
-        const year = tomorrow.getFullYear();
+        const year = dateTime.getFullYear();
         
         const date = `${month}/${day}/${year}`;
         
-        let hour = tomorrow.getHours().toLocaleString();
+        let hour = dateTime.getHours().toLocaleString();
         hour = hour.length == 1? "0" + hour : hour;
-        let minute = tomorrow.getMinutes().toLocaleString();
+        let minute = dateTime.getMinutes().toLocaleString();
         minute = minute.length == 1? "0" + minute : minute;
 
         const time = `${hour}:${minute}`;
 
-        this.endDateInput.setValue(date);
-        this.endTimeInput.setValue(time);
+        return {date:date, time:time};
     }
 }
