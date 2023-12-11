@@ -3,7 +3,7 @@ import { ActionRowBuilder, ButtonBuilder, ModalSubmitInteraction, TextInputStyle
 import NewPollReturnButton from "./NewPollReturnButton.js";
 import { DataHandlerObject } from "../DataHandler.js";
 
-export type NewPoll = {title:string, options:string, dateTime:Date};
+export type NewPoll = {title:string, options:string[], dateTime:Date};
 
 export default class NewPollModal extends ModalBuilder {
     private id = `NewPollModal:${crypto.randomUUID()}`;
@@ -13,16 +13,16 @@ export default class NewPollModal extends ModalBuilder {
         .setLabel("Title")
         .setRequired(true)
         .setMinLength(1)
-        .setMaxLength(20)
+        .setMaxLength(50)
         .setStyle(TextInputStyle.Short);
     
     private optionsInput = new TextInputBuilder()
         .setCustomId("OptionsInput")
-        .setLabel("Number of Options")
+        .setLabel("Options (comma separated)")
         .setRequired(true)
         .setMinLength(1)
-        .setMaxLength(2)
-        .setStyle(TextInputStyle.Short);
+        .setMaxLength(1000)
+        .setStyle(TextInputStyle.Paragraph);
 
     private endDateInput = new TextInputBuilder()
         .setCustomId("EndDateInput")
@@ -40,19 +40,19 @@ export default class NewPollModal extends ModalBuilder {
         .setMaxLength(5)
         .setStyle(TextInputStyle.Short)
 
-    constructor(title?:string, options?:string, dateTime?:Date) {
+    constructor(title?:string, options?:string[], dateTime?:Date) {
         super();
 
         if(!title || !options || !dateTime) {
             this.titleInput.setValue("My Poll");
-            this.optionsInput.setValue("2");
+            this.optionsInput.setValue("Enter options here");
             this.setToDefaultEndDateTime();
         }
         else {
             const { date, time } = this.stringifyDateTime(dateTime);
 
             this.titleInput.setValue(title);
-            this.optionsInput.setValue(options);
+            this.optionsInput.setValue(options.join(", "));
             this.endDateInput.setValue(date);
             this.endTimeInput.setValue(time);
         }
@@ -97,8 +97,9 @@ export default class NewPollModal extends ModalBuilder {
             return;
         }
 
-        const optionsValue = parseInt(options);
-        if(!optionsValue || optionsValue < 2) errors.push("Options");
+        const optionValues = options.split(",");
+        optionValues.forEach(o => o.trim());
+        if(optionValues.length == 0 || optionValues.includes("")) errors.push("Options");
 
         const dateTime = this.parseDateTime(date, time);
         if(!dateTime || dateTime.getTime() < Date.now()) errors.push("Date/Time");
@@ -106,7 +107,7 @@ export default class NewPollModal extends ModalBuilder {
         const dataID = crypto.randomUUID();
         const newPoll:NewPoll = {
             title:title,
-            options:options, 
+            options:optionValues, 
             dateTime:(dateTime? dateTime: this.getTomorrow())
         };
         DataHandlerObject.addNewPoll(dataID, newPoll);

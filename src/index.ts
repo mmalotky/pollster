@@ -1,5 +1,5 @@
-import dotenv from "dotenv";
-import { Client, IntentsBitField, Events, Collection } from "discord.js";
+import * as dotenv from "dotenv";
+import { Client, IntentsBitField, Events } from "discord.js";
 import CommandsHandler from "./CommandsHandler.js";
 import NewPollModal from "./components/NewPollModal.js";
 import NewPollReturnButton from "./components/NewPollReturnButton.js";
@@ -48,9 +48,15 @@ class Init {
 			} catch (error) {
 				console.error(error);
 				if (interaction.replied || interaction.deferred) {
-					await interaction.followUp({ content: 'There was an error while executing this command!', ephemeral: true });
+					await interaction.followUp({ 
+						content: 'There was an error while executing this command!', 
+						ephemeral: true 
+					});
 				} else {
-					await interaction.reply({ content: 'There was an error while executing this command!', ephemeral: true });
+					await interaction.reply({ 
+						content: 'There was an error while executing this command!', 
+						ephemeral: true 
+					});
 				}
 			}
 		});

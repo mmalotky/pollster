@@ -2,28 +2,44 @@
   "name": "pollster",
   "version": "1.0.0",
   "description": "Discord Bot for creating polls.",
-  "main": "index.js",
   "type": "module",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node --loader ts-node/esm ./src/index.ts",
-    "lint": "eslint .",
-    "lint-watch": "esw --ext .ts -w ."
-  },
   "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "author": "mmalotky",
+  "license": "MIT",
+  "watch": {
+    "lint": {
+      "patterns": [
+        "src"
+      ],
+      "extensions": "ts,mts,cts"
+    },
+    "start": {
+      "patterns": [
+        "src"
+      ],
+      "extensions": "ts,mts,cts"
+    }
+  },
+  "scripts": {
+    "watch": "npm-watch",
+    "start": "tsx ./src/index.ts",
+    "lint": "eslint --fix ."
+  },
   "devDependencies": {
-    "eslint": "*",
-    "eslint-watch": "*",
-    "@typescript-eslint/parser": "*",
     "@typescript-eslint/eslint-plugin": "*",
-    "eslint-plugin-tsdoc": "*"
+    "@typescript-eslint/parser": "*",
+    "eslint": "*",
+    "eslint-plugin-tsdoc": "*",
+    "npm-watch": "*"
   },
   "dependencies": {
+    "@swc/core": "*",
+    "@types/node": "*",
     "discord.js": "*",
     "dotenv": "*",
-    "ts-node": "*",
+    "node": "*",
+    "tsx": "*",
+    "tsconfig-paths": "*",
     "typescript": "*"
   }
 }
