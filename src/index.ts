@@ -1,9 +1,9 @@
 import * as dotenv from "dotenv";
 import { Client, IntentsBitField, Events } from "discord.js";
-import CommandsHandler from "./CommandsHandler.js";
+import CommandsHandler from "./handlers/CommandsHandler.js";
 import NewPollModal from "./components/NewPollModal.js";
 import NewPollReturnButton from "./components/NewPollReturnButton.js";
-import { DataHandlerObject } from "./DataHandler.js";
+import { DataHandlerObject } from "./handlers/DataHandler.js";
 
 class Init {
 	private client = new Client({

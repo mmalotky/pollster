@@ -1,8 +1,9 @@
 import { ModalBuilder, TextInputBuilder } from "@discordjs/builders";
 import { ActionRowBuilder, ButtonBuilder, ModalSubmitInteraction, TextInputStyle } from "discord.js";
 import NewPollReturnButton from "./NewPollReturnButton.js";
-import { DataHandlerObject } from "../DataHandler.js";
-import { Option, Poll } from "../Poll.js";
+import { DataHandlerObject } from "../handlers/DataHandler.js";
+import { Option, Poll } from "../utility/Poll.js";
+import DateFuncions from "../utility/DateFunctions.js";
 
 export default class NewPollModal extends ModalBuilder {
     private id = `NewPollModal:${crypto.randomUUID()}`;
@@ -48,7 +49,7 @@ export default class NewPollModal extends ModalBuilder {
             this.setToDefaultEndDateTime();
         }
         else {
-            const { date, time } = this.stringifyDateTime(dateTime);
+            const { date, time } = DateFuncions.stringifyDateTime(dateTime);
 
             this.titleInput.setValue(title);
             this.optionsInput.setValue(options.flatMap(o => o.label).join(", "));
@@ -75,8 +76,8 @@ export default class NewPollModal extends ModalBuilder {
     }
 
     private setToDefaultEndDateTime() {
-        const dateTime = NewPollModal.getTomorrow();
-        const {date, time} = this.stringifyDateTime(dateTime);
+        const dateTime = DateFuncions.getTomorrow();
+        const {date, time} = DateFuncions.stringifyDateTime(dateTime);
         this.endDateInput.setValue(date);
         this.endTimeInput.setValue(time);
     }
@@ -105,14 +106,14 @@ export default class NewPollModal extends ModalBuilder {
             return {label:o, votes:0}
         });
 
-        const dateTime = this.parseDateTime(date, time);
+        const dateTime = DateFuncions.parseDateTime(date, time);
         if(!dateTime || dateTime.getTime() < Date.now()) errors.push("Date/Time");
 
         const newPoll:Poll = {
             id:dataID,
             title:title,
             options:optionList, 
-            endDate:(dateTime? dateTime: this.getTomorrow()),
+            endDate:(dateTime? dateTime: DateFuncions.getTomorrow()),
             active:false
         };
         DataHandlerObject.addPoll(dataID, newPoll);
@@ -135,72 +136,5 @@ export default class NewPollModal extends ModalBuilder {
                 ephemeral: true
             });
         }
-    }
-
-    static parseDateTime(date:string, time:string) {
-		const reDate = /^[0-9]{2}\/[0-9]{2}\/[0-9]{4}$/;
-		const reTime = /^[0-9]{2}:[0-9]{2}$/;
-		if(!date.match(reDate) || !time.match(reTime)) {
-			console.log("[ERR] Invalid date or time.");
-			return;
-		}
-		const dateValues = date.split("/");
-		const timeValues = time.split(":");
-
-		const month = parseInt(dateValues[0]);
-		if(month < 1 || month > 12) {
-			console.log("[ERR] Invalid Month");
-			return;
-		}
-		const day = parseInt(dateValues[1]);
-		if(day < 1 || day > 31) {
-			console.log("[ERR] Invalid date");
-			return;
-		}
-		const hour = parseInt(timeValues[0]);
-		if(hour < 0 || hour > 24) {
-			console.log("[ERR] Invalid Hour")
-			return;
-		}
-		const minute = parseInt(timeValues[1]);
-		if(minute < 0 || minute > 59) {
-			console.log("[ERR] Invaild Minute");
-			return;
-		}
-		
-		const dateTimeFormat = `${dateValues[2]}-${dateValues[0]}-${dateValues[1]}T${timeValues[0]}:${timeValues[1]}`;
-		const dateTime = new Date(dateTimeFormat);
-		if(isNaN(dateTime.getTime())) {
-			console.log("[ERR] Could not parse date: " + dateTimeFormat);
-			return;
-		}
-		
-		return dateTime;
-	}
-
-    private stringifyDateTime(dateTime:Date) {
-        let month = (dateTime.getMonth() + 1).toLocaleString();
-        month = month.length == 1? "0" + month : month;
-        let day = dateTime.getDate().toLocaleString();
-        day = day.length == 1? "0" + day : day;
-        const year = dateTime.getFullYear();
-        
-        const date = `${month}/${day}/${year}`;
-        
-        let hour = dateTime.getHours().toLocaleString();
-        hour = hour.length == 1? "0" + hour : hour;
-        let minute = dateTime.getMinutes().toLocaleString();
-        minute = minute.length == 1? "0" + minute : minute;
-
-        const time = `${hour}:${minute}`;
-
-        return {date:date, time:time};
-    }
-
-    private static getTomorrow() {
-        const dateTime = new Date();
-        const tomorrow = new Date(dateTime)
-        tomorrow.setDate(dateTime.getDate() + 1);
-        return tomorrow;
     }
 }

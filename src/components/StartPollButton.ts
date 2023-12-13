@@ -1,5 +1,5 @@
 import { ButtonBuilder, ButtonInteraction, ButtonStyle } from "discord.js";
-import { Poll } from "../Poll";
+import { Poll } from "../utility/Poll.js";
 
 export default class StartPollButton extends ButtonBuilder {
     constructor(id:string) {

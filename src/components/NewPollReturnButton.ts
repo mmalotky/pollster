@@ -1,7 +1,7 @@
 import { ButtonBuilder, ButtonInteraction, ButtonStyle } from "discord.js";
 import NewPollModal from "./NewPollModal.js";
-import { Poll } from "../Poll.js";
-import { DataHandlerObject } from "../DataHandler.js";
+import { Poll } from "../utility/Poll.js";
+import { DataHandlerObject } from "../handlers/DataHandler.js";
 
 export default class NewPollReturnButton extends ButtonBuilder {
     

@@ -1,5 +1,5 @@
 import { Collection } from "discord.js";
-import { Poll } from "./Poll.js";
+import { Poll } from "../utility/Poll.js";
 
 class DataHandler {
     private polls = new Collection<string, Poll>();

@@ -1,7 +1,7 @@
 import dotenv from "dotenv";
 import { REST, RESTPostAPIChatInputApplicationCommandsJSONBody, Routes} from "discord.js";
-import PollCommand from "./commands/PollCommand.js";
-import Command from "./commands/Command.js";
+import PollCommand from "../commands/PollCommand.js";
+import Command from "../commands/Command.js";
 
 export default class CommandsHandler {
     private commands:Command[] = [];
