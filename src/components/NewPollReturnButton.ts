@@ -1,5 +1,7 @@
 import { ButtonBuilder, ButtonInteraction, ButtonStyle } from "discord.js";
-import NewPollModal, { NewPoll } from "./NewPollModal.js";
+import NewPollModal from "./NewPollModal.js";
+import { Poll } from "../Poll.js";
+import { DataHandlerObject } from "../DataHandler.js";
 
 export default class NewPollReturnButton extends ButtonBuilder {
     
@@ -12,13 +14,23 @@ export default class NewPollReturnButton extends ButtonBuilder {
 
     static async submit(
         interaction:ButtonInteraction, 
-        payload:NewPoll
+        poll:Poll
     ) {
+        if(poll.active) {
+            await interaction.reply({
+                content:"This poll can no longer be activated.",
+                ephemeral: true
+            });
+            return;
+        }
+
         const modal = new NewPollModal(
-            payload.title,
-            payload.options,
-            payload.dateTime
+            poll.title,
+            poll.options,
+            poll.endDate
         );
+
+        DataHandlerObject.removePoll(poll.id);
 
         await interaction.showModal(modal);
     }

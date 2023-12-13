@@ -1,15 +1,19 @@
 import { Collection } from "discord.js";
-import { NewPoll } from "./components/NewPollModal.js";
+import { Poll } from "./Poll.js";
 
 class DataHandler {
-    private newPolls = new Collection<string, NewPoll>();
+    private polls = new Collection<string, Poll>();
 
-	public addNewPoll(id:string, newPoll:NewPoll) {
-		this.newPolls.set(id, newPoll);
+	public addPoll(id:string, poll:Poll) {
+		this.polls.set(id, poll);
 	}
 
-    public getNewPoll(id:string) {
-        return this.newPolls.get(id);
+    public removePoll(id:string) {
+        this.polls.delete(id);
+    }
+
+    public getPoll(id:string) {
+        return this.polls.get(id);
     }
 }
 

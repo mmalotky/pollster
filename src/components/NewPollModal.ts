@@ -2,8 +2,7 @@ import { ModalBuilder, TextInputBuilder } from "@discordjs/builders";
 import { ActionRowBuilder, ButtonBuilder, ModalSubmitInteraction, TextInputStyle } from "discord.js";
 import NewPollReturnButton from "./NewPollReturnButton.js";
 import { DataHandlerObject } from "../DataHandler.js";
-
-export type NewPoll = {title:string, options:string[], dateTime:Date};
+import { Option, Poll } from "../Poll.js";
 
 export default class NewPollModal extends ModalBuilder {
     private id = `NewPollModal:${crypto.randomUUID()}`;
@@ -40,7 +39,7 @@ export default class NewPollModal extends ModalBuilder {
         .setMaxLength(5)
         .setStyle(TextInputStyle.Short)
 
-    constructor(title?:string, options?:string[], dateTime?:Date) {
+    constructor(title?:string, options?:Option[], dateTime?:Date) {
         super();
 
         if(!title || !options || !dateTime) {
@@ -52,7 +51,7 @@ export default class NewPollModal extends ModalBuilder {
             const { date, time } = this.stringifyDateTime(dateTime);
 
             this.titleInput.setValue(title);
-            this.optionsInput.setValue(options.join(", "));
+            this.optionsInput.setValue(options.flatMap(o => o.label).join(", "));
             this.endDateInput.setValue(date);
             this.endTimeInput.setValue(time);
         }
@@ -84,6 +83,8 @@ export default class NewPollModal extends ModalBuilder {
 
     static async submit(interaction:ModalSubmitInteraction) {
         const errors:string[] = [];
+        const dataID = crypto.randomUUID();
+
         const title = interaction.fields.getTextInputValue("TitleInput");
         const options = interaction.fields.getTextInputValue("OptionsInput");
         const date = interaction.fields.getTextInputValue("EndDateInput");
@@ -100,17 +101,21 @@ export default class NewPollModal extends ModalBuilder {
         const optionValues = options.split(",");
         optionValues.forEach(o => o.trim());
         if(optionValues.length == 0 || optionValues.includes("")) errors.push("Options");
+        const optionList:Option[] = optionValues.map(o => {
+            return {label:o, votes:0}
+        });
 
         const dateTime = this.parseDateTime(date, time);
         if(!dateTime || dateTime.getTime() < Date.now()) errors.push("Date/Time");
 
-        const dataID = crypto.randomUUID();
-        const newPoll:NewPoll = {
+        const newPoll:Poll = {
+            id:dataID,
             title:title,
-            options:optionValues, 
-            dateTime:(dateTime? dateTime: this.getTomorrow())
+            options:optionList, 
+            endDate:(dateTime? dateTime: this.getTomorrow()),
+            active:false
         };
-        DataHandlerObject.addNewPoll(dataID, newPoll);
+        DataHandlerObject.addPoll(dataID, newPoll);
         
         const returnButton = new NewPollReturnButton(dataID);
         const ar = new ActionRowBuilder<ButtonBuilder>();

@@ -80,7 +80,7 @@ class Init {
 
 			if(buttonId.startsWith("NewPollReturn")) {
 				const dataID = buttonId.substring(14);
-				const payload = DataHandlerObject.getNewPoll(dataID);
+				const payload = DataHandlerObject.getPoll(dataID);
 
 				if(payload) {
 					await NewPollReturnButton.submit(interation, payload);
