@@ -1,5 +1,6 @@
-import { ButtonBuilder, ButtonInteraction, ButtonStyle } from "discord.js";
+import { ActionRowBuilder, ButtonBuilder, ButtonInteraction, ButtonStyle, StringSelectMenuBuilder } from "discord.js";
 import { Poll } from "../utility/Poll.js";
+import PollMenu from "./PollMenu.js";
 
 export default class StartPollButton extends ButtonBuilder {
     constructor(id:string) {
@@ -22,12 +23,12 @@ export default class StartPollButton extends ButtonBuilder {
         }
 
         poll.active = true;
+        const ar = new ActionRowBuilder<StringSelectMenuBuilder>();
+        ar.addComponents(new PollMenu(poll));
 
         await interaction.reply({
             content:poll.title,
-            embeds:[
-                
-            ]
+            components:[ar]
         });
     }
 }

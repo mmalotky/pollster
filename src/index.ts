@@ -4,6 +4,7 @@ import CommandsHandler from "./handlers/CommandsHandler.js";
 import NewPollModal from "./components/NewPollModal.js";
 import NewPollReturnButton from "./components/NewPollReturnButton.js";
 import { DataHandlerObject } from "./handlers/DataHandler.js";
+import StartPollButton from "./components/StartPollButton.js";
 
 class Init {
 	private client = new Client({
@@ -84,6 +85,22 @@ class Init {
 
 				if(payload) {
 					await NewPollReturnButton.submit(interation, payload);
+				}
+				else {
+					console.log(`[ERR] New Poll ${dataID} data not found.`);
+					await interation.reply({
+						content:"Poll data was lost or corrupted. Please make a new poll.",
+						ephemeral:true
+					})
+				}
+			}
+
+			if(buttonId.startsWith("StartPoll")) {
+				const dataID = buttonId.substring(10);
+				const payload = DataHandlerObject.getPoll(dataID);
+
+				if(payload) {
+					await StartPollButton.submit(interation, payload);
 				}
 				else {
 					console.log(`[ERR] New Poll ${dataID} data not found.`);

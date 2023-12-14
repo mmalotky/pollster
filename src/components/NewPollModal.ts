@@ -4,6 +4,7 @@ import NewPollReturnButton from "./NewPollReturnButton.js";
 import { DataHandlerObject } from "../handlers/DataHandler.js";
 import { Option, Poll } from "../utility/Poll.js";
 import DateFuncions from "../utility/DateFunctions.js";
+import StartPollButton from "./StartPollButton.js";
 
 export default class NewPollModal extends ModalBuilder {
     private id = `NewPollModal:${crypto.randomUUID()}`;
@@ -119,10 +120,12 @@ export default class NewPollModal extends ModalBuilder {
         DataHandlerObject.addPoll(dataID, newPoll);
         
         const returnButton = new NewPollReturnButton(dataID);
+        const startbutton = new StartPollButton(dataID);
         const ar = new ActionRowBuilder<ButtonBuilder>();
-        ar.addComponents(returnButton);
+        ar.addComponents(returnButton, startbutton);
 
         if(errors.length > 0) {
+            startbutton.setDisabled(true);
             await interaction.reply({
                 content: `Invalid:${errors}`, 
                 components: [ar],
