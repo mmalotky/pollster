@@ -1,10 +1,11 @@
 import * as dotenv from "dotenv";
-import { Client, IntentsBitField, Events } from "discord.js";
+import { Client, IntentsBitField, Events, ButtonInteraction, AnySelectMenuInteraction } from "discord.js";
 import CommandsHandler from "./handlers/CommandsHandler.js";
 import NewPollModal from "./components/NewPollModal.js";
 import NewPollReturnButton from "./components/NewPollReturnButton.js";
 import { DataHandlerObject } from "./handlers/DataHandler.js";
 import StartPollButton from "./components/StartPollButton.js";
+import PollMenu from "./components/PollMenu.js";
 
 class Init {
 	private client = new Client({
@@ -28,6 +29,7 @@ class Init {
 			this.handleCommands();
 			this.handleModals();
 			this.handleButtons();
+			this.handleMenuInteractions();
 			console.log("[INFO] Pollster Online")
 		});
 	}
@@ -75,42 +77,51 @@ class Init {
 	}
 
 	private handleButtons() {
-		this.client.on(Events.InteractionCreate, async (interation) => {
-			if(!interation.isButton()) return;
-			const buttonId = interation.customId;
+		this.client.on(Events.InteractionCreate, async (interaction) => {
+			if(!interaction.isButton()) return;
+			const buttonId = interaction.customId;
 
 			if(buttonId.startsWith("NewPollReturn")) {
 				const dataID = buttonId.substring(14);
-				const payload = DataHandlerObject.getPoll(dataID);
-
-				if(payload) {
-					await NewPollReturnButton.submit(interation, payload);
-				}
-				else {
-					console.log(`[ERR] New Poll ${dataID} data not found.`);
-					await interation.reply({
-						content:"Poll data was lost or corrupted. Please make a new poll.",
-						ephemeral:true
-					})
-				}
+				this.pollDataInteraction(dataID, NewPollReturnButton.submit, interaction);
 			}
 
 			if(buttonId.startsWith("StartPoll")) {
 				const dataID = buttonId.substring(10);
-				const payload = DataHandlerObject.getPoll(dataID);
-
-				if(payload) {
-					await StartPollButton.submit(interation, payload);
-				}
-				else {
-					console.log(`[ERR] New Poll ${dataID} data not found.`);
-					await interation.reply({
-						content:"Poll data was lost or corrupted. Please make a new poll.",
-						ephemeral:true
-					})
-				}
+				this.pollDataInteraction(dataID, StartPollButton.submit, interaction);
 			}
 		});
+	}
+
+	private handleMenuInteractions() {
+		this.client.on(Events.InteractionCreate, async (interaction) => {
+			if(!interaction.isStringSelectMenu()) return;
+			const menuID = interaction.customId;
+
+			if(menuID.startsWith("Poll")) {
+				const dataID = menuID.substring(5);
+				this.pollDataInteraction(dataID, PollMenu.select, interaction);
+			}
+		})
+	}
+
+	private async pollDataInteraction(
+		dataID:string,
+		execute:Function,
+		interaction:ButtonInteraction | AnySelectMenuInteraction
+	) {
+		const payload = DataHandlerObject.getPoll(dataID);
+
+		if(payload) {
+			await execute(interaction, payload);
+		}
+		else {
+			console.log(`[ERR] Poll ${dataID} data not found.`);
+			await interaction.reply({
+				content:"Poll data was lost or corrupted. Please make a new poll.",
+				ephemeral:true
+			})
+		}
 	}
 }
 

@@ -9,5 +9,5 @@ export type Poll = {
 
 export type Option = {
     label:string;
-    votes:number;
+    votes:Set<string>;
 }

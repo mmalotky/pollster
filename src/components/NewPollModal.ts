@@ -104,7 +104,7 @@ export default class NewPollModal extends ModalBuilder {
         optionValues.forEach(o => o.trim());
         if(optionValues.length == 0 || optionValues.includes("")) errors.push("Options");
         const optionList:Option[] = optionValues.map(o => {
-            return {label:o, votes:0}
+            return {label:o, votes:new Set<string>()}
         });
 
         const dateTime = DateFuncions.parseDateTime(date, time);
