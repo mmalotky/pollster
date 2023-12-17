@@ -100,8 +100,7 @@ export default class NewPollModal extends ModalBuilder {
             return;
         }
 
-        let optionValues = options.split(",");
-        optionValues = optionValues.map(o => o.trim());
+        const optionValues = options.split(",").map(o => o.trim());
         if(optionValues.length == 0 || optionValues.includes("")) errors.push("Options");
         const optionList:Option[] = optionValues.map(o => {
             return {label:o, votes:new Set<string>()}
