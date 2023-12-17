@@ -1,4 +1,4 @@
-import { ActionRowBuilder, ButtonBuilder, ButtonInteraction, ButtonStyle, StringSelectMenuBuilder } from "discord.js";
+import { ActionRowBuilder, ButtonBuilder, ButtonInteraction, ButtonStyle, StringSelectMenuBuilder, StringSelectMenuInteraction } from "discord.js";
 import { Poll } from "../utility/Poll.js";
 import PollMenu from "./PollMenu.js";
 
@@ -11,7 +11,7 @@ export default class StartPollButton extends ButtonBuilder {
     }
 
     static async submit(
-        interaction:ButtonInteraction,
+        interaction:ButtonInteraction | StringSelectMenuInteraction,
         poll:Poll
     ) {
         if(poll.active || poll.endDate.getTime() < Date.now()) {

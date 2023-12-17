@@ -1,4 +1,4 @@
-import { ButtonBuilder, ButtonInteraction, ButtonStyle } from "discord.js";
+import { ButtonBuilder, ButtonInteraction, ButtonStyle, StringSelectMenuInteraction } from "discord.js";
 import NewPollModal from "./NewPollModal.js";
 import { Poll } from "../utility/Poll.js";
 import { DataHandlerObject } from "../handlers/DataHandler.js";
@@ -13,7 +13,7 @@ export default class NewPollReturnButton extends ButtonBuilder {
     }
 
     static async submit(
-        interaction:ButtonInteraction, 
+        interaction:ButtonInteraction | StringSelectMenuInteraction, 
         poll:Poll
     ) {
         if(poll.active) {

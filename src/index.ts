@@ -1,11 +1,12 @@
 import * as dotenv from "dotenv";
-import { Client, IntentsBitField, Events, ButtonInteraction, AnySelectMenuInteraction } from "discord.js";
+import { Client, IntentsBitField, Events, ButtonInteraction, StringSelectMenuInteraction } from "discord.js";
 import CommandsHandler from "./handlers/CommandsHandler.js";
 import NewPollModal from "./components/NewPollModal.js";
 import NewPollReturnButton from "./components/NewPollReturnButton.js";
 import { DataHandlerObject } from "./handlers/DataHandler.js";
 import StartPollButton from "./components/StartPollButton.js";
 import PollMenu from "./components/PollMenu.js";
+import { Poll } from "./utility/Poll.js";
 
 class Init {
 	private client = new Client({
@@ -107,13 +108,13 @@ class Init {
 
 	private async pollDataInteraction(
 		dataID:string,
-		execute:Function,
-		interaction:ButtonInteraction | AnySelectMenuInteraction
+		execute:(interaction:ButtonInteraction | StringSelectMenuInteraction, poll:Poll) => Promise<void>,
+		interaction:ButtonInteraction | StringSelectMenuInteraction
 	) {
-		const payload = DataHandlerObject.getPoll(dataID);
+		const poll = DataHandlerObject.getPoll(dataID);
 
-		if(payload) {
-			await execute(interaction, payload);
+		if(poll) {
+			await execute(interaction, poll);
 		}
 		else {
 			console.log(`[ERR] Poll ${dataID} data not found.`);

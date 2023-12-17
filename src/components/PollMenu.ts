@@ -1,5 +1,5 @@
 import { Poll } from "../utility/Poll.js";
-import { StringSelectMenuBuilder, StringSelectMenuInteraction, StringSelectMenuOptionBuilder } from "discord.js";
+import { ButtonInteraction, StringSelectMenuBuilder, StringSelectMenuInteraction, StringSelectMenuOptionBuilder } from "discord.js";
 
 export default class PollMenu extends StringSelectMenuBuilder {
     constructor(poll:Poll) {
@@ -15,7 +15,11 @@ export default class PollMenu extends StringSelectMenuBuilder {
         this.setMinValues(1);
     }
 
-    public static select(interaction:StringSelectMenuInteraction, poll:Poll) {
+    public static async select(
+        interaction:ButtonInteraction | StringSelectMenuInteraction,
+        poll:Poll
+    ) {
+        if(!interaction.isStringSelectMenu()) return;
         const selections = interaction.values;
         for(const selection of selections) {
             const option = poll.options.find(o => o.label === selection);
