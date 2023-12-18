@@ -1,5 +1,5 @@
 import { ActionRowBuilder, ButtonBuilder, ButtonInteraction, ButtonStyle, StringSelectMenuBuilder, StringSelectMenuInteraction } from "discord.js";
-import { Poll } from "../utility/Poll.js";
+import { Poll, schedulePoll } from "../utility/Poll.js";
 import PollMenu from "./PollMenu.js";
 
 export default class StartPollButton extends ButtonBuilder {
@@ -25,6 +25,8 @@ export default class StartPollButton extends ButtonBuilder {
         }
 
         poll.active = true;
+        poll.channel = interaction.channel;
+        
         const ar = new ActionRowBuilder<StringSelectMenuBuilder>();
         const pollMenu = new PollMenu(poll);
         ar.addComponents(pollMenu);
@@ -33,5 +35,7 @@ export default class StartPollButton extends ButtonBuilder {
             content:poll.title,
             components:[ar]
         });
+
+        schedulePoll(poll);
     }
 }

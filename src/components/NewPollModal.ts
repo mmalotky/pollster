@@ -112,6 +112,7 @@ export default class NewPollModal extends ModalBuilder {
         const newPoll:Poll = {
             id:dataID,
             title:title,
+            channel:null,
             options:optionList, 
             endDate:(dateTime? dateTime: DateFuncions.getTomorrow()),
             active:false

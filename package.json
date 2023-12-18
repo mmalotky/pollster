@@ -40,6 +40,7 @@
     "node": "*",
     "tsx": "*",
     "tsconfig-paths": "*",
-    "typescript": "*"
+    "typescript": "*",
+    "cron":"*"
   }
 }
