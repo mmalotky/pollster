@@ -65,4 +65,29 @@ export default class DateFuncions {
         tomorrow.setDate(dateTime.getDate() + 1);
         return tomorrow;
     }
+
+	public static getTimeDifference(d1:Date, d2:Date) {
+		let result = "";
+		let diff = d1.getTime() - d2.getTime();
+		
+		const days = Math.floor(diff/86400000);
+		if(days > 0) {
+			result += ` ${days} day${days === 1? "" : "s"}`;
+			diff -= (days * 86400000);
+		}
+
+		const hours = Math.floor(diff/3600000);
+		if(hours > 0) {
+			result += ` ${hours} hour${hours === 1? "" : "s"}`;
+			diff -= (hours * 3600000);
+		}
+
+		const minutes = Math.floor(diff/60000);
+		if(minutes > 0) {
+			result += ` ${minutes} minute${minutes === 1? "" : "s"}`;
+		}
+
+		result = result.trim();
+		return result;
+	}
 }

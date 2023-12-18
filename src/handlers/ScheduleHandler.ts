@@ -1,6 +1,7 @@
 import { CronJob } from "cron";
 import { Poll } from "../utility/Poll";
 import { DataHandlerObject } from "./DataHandler";
+import DateFuncions from "../utility/DateFunctions";
 
 export default class ScheduleHandler {
     public static createJob(poll:Poll, date:Date) {
@@ -10,7 +11,7 @@ export default class ScheduleHandler {
             date,
             () => {
                 if(poll.endDate.getTime() === date.getTime()) this.sendResults(poll);
-                else this.sendReminder(poll);
+                else this.sendReminder(poll, date);
             }
         );
         job.start();
@@ -30,13 +31,15 @@ export default class ScheduleHandler {
         DataHandlerObject.removePoll(poll.id);
     }
 
-    private static sendReminder(poll:Poll) {
+    private static sendReminder(poll:Poll, date:Date) {
         if(!poll.channel) {
             console.log("[ERR] Channel is null");
             return;
         }
 
-        const message = `${poll.title} ends on ${poll.endDate}`;
+        const countDown = DateFuncions.getTimeDifference(poll.endDate, date);
+        const message = `${poll.title} ends in ${countDown}`;
+        
         poll.channel.send(message);
     }
 }
