@@ -14,6 +14,8 @@ export default class StartPollButton extends ButtonBuilder {
         interaction:ButtonInteraction | StringSelectMenuInteraction,
         poll:Poll
     ) {
+        if(!interaction.isButton) return;
+
         if(poll.active || poll.endDate.getTime() < Date.now()) {
             await interaction.reply({
                 content: "This poll is expired or in progress.",
@@ -24,7 +26,8 @@ export default class StartPollButton extends ButtonBuilder {
 
         poll.active = true;
         const ar = new ActionRowBuilder<StringSelectMenuBuilder>();
-        ar.addComponents(new PollMenu(poll));
+        const pollMenu = new PollMenu(poll);
+        ar.addComponents(pollMenu);
 
         await interaction.reply({
             content:poll.title,

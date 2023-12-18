@@ -2,6 +2,7 @@ import { Poll } from "../utility/Poll.js";
 import { ButtonInteraction, StringSelectMenuBuilder, StringSelectMenuInteraction, StringSelectMenuOptionBuilder } from "discord.js";
 
 export default class PollMenu extends StringSelectMenuBuilder {
+
     constructor(poll:Poll) {
         super();
         this.setCustomId(`Poll:${poll.id}`);
@@ -12,7 +13,8 @@ export default class PollMenu extends StringSelectMenuBuilder {
                 .setValue(o.label)
         })
         this.setOptions(menuOptions);
-        this.setMinValues(1);
+        this.setMinValues(0);
+        this.setMaxValues(poll.options.length);
     }
 
     public static async select(
@@ -24,7 +26,7 @@ export default class PollMenu extends StringSelectMenuBuilder {
         for(const selection of selections) {
             const option = poll.options.find(o => o.label === selection);
             if(option) {
-                option.votes.add(interaction.user.username);
+                option.votes.add(interaction.user.id);
             }
             else {
                 console.log(`[ERR]: Option ${selection} does not exist in Poll ${poll.id}`)
@@ -35,5 +37,10 @@ export default class PollMenu extends StringSelectMenuBuilder {
         for(const option of unselected) {
             option.votes.delete(interaction.user.username);
         }
+
+        await interaction.reply({
+            content:`Selected:${selections}`,
+            ephemeral:true
+        })
     }
 }
