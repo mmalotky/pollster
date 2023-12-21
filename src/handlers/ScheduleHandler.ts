@@ -15,6 +15,7 @@ export default class ScheduleHandler {
             }
         );
         job.start();
+        DataHandlerObject.addEvent(poll.id, job);
     }
 
     private static sendResults(poll:Poll) {
@@ -29,6 +30,7 @@ export default class ScheduleHandler {
 
         poll.channel.send(message);
         DataHandlerObject.removePoll(poll.id);
+        DataHandlerObject.removeEvents(poll.id);
     }
 
     private static sendReminder(poll:Poll, date:Date) {
