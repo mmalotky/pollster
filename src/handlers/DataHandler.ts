@@ -1,5 +1,5 @@
 import { Collection } from "discord.js";
-import { Poll } from "../utility/Poll.js";
+import { Poll, schedulePoll } from "../utility/Poll.js";
 import { CronJob } from "cron";
 
 class DataHandler {
@@ -8,10 +8,12 @@ class DataHandler {
 
 	public addPoll(id:string, poll:Poll) {
 		this.polls.set(id, poll);
+        schedulePoll(poll);
 	}
 
     public removePoll(id:string) {
         this.polls.delete(id);
+        this.removeEvents(id);
     }
 
     public getPoll(id:string) {
@@ -24,10 +26,13 @@ class DataHandler {
             events = new Array<CronJob<null,null>>;
             this.schedule.set(id, events);
         }
+        event.start();
         events.push(event);
     }
 
     public removeEvents(id:string) {
+        const events = this.schedule.get(id);
+        if(events) events.forEach(e => e.stop());
         this.schedule.delete(id);
     }
 

@@ -2,6 +2,7 @@ import dotenv from "dotenv";
 import { REST, RESTPostAPIChatInputApplicationCommandsJSONBody, Routes} from "discord.js";
 import PollCommand from "../commands/PollCommand.js";
 import Command from "../commands/Command.js";
+import ScheduleCommand from "../commands/ScheduleCommand.js";
 
 export default class CommandsHandler {
     private commands:Command[] = [];
@@ -14,6 +15,10 @@ export default class CommandsHandler {
         const pollCommand = new PollCommand();
         this.commands.push(pollCommand);
         this.commandsJSON.push(pollCommand.getData().toJSON());
+
+        const scheduleCommand = new ScheduleCommand();
+        this.commands.push(scheduleCommand);
+        this.commandsJSON.push(scheduleCommand.getData().toJSON());
 
         if(process.env.TOKEN) this.rest.setToken(process.env.TOKEN);
         else console.log("[ERR]: No token found");

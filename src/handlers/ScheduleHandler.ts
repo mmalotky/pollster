@@ -14,11 +14,14 @@ export default class ScheduleHandler {
                 else this.sendReminder(poll, date);
             }
         );
-        job.start();
+
         DataHandlerObject.addEvent(poll.id, job);
     }
 
     private static sendResults(poll:Poll) {
+        DataHandlerObject.removePoll(poll.id);
+
+        if(!poll.active) return;
         if(!poll.channel) {
             console.log("[ERR] Channel is null");
             return;
@@ -29,8 +32,6 @@ export default class ScheduleHandler {
             .join("\n");
 
         poll.channel.send(message);
-        DataHandlerObject.removePoll(poll.id);
-        DataHandlerObject.removeEvents(poll.id);
     }
 
     private static sendReminder(poll:Poll, date:Date) {

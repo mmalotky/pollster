@@ -1,5 +1,5 @@
 import { TextBasedChannel } from "discord.js";
-import ScheduleHandler from "../handlers/ScheduleHandler";
+import ScheduleHandler from "../handlers/ScheduleHandler.js";
 
 export type Poll = {
     id:string;
@@ -17,7 +17,9 @@ export type Option = {
 
 export function schedulePoll(poll:Poll) {
     ScheduleHandler.createJob(poll, poll.endDate);
-    
+}
+
+export function scheduleReminders(poll:Poll) {
     const hourReminder = new Date(poll.endDate);
     hourReminder.setHours(hourReminder.getHours() - 1);
     ScheduleHandler.createJob(poll, hourReminder);
