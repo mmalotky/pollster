@@ -20,6 +20,10 @@ class DataHandler {
         return this.polls.get(id);
     }
 
+    public getActivePolls(channelID:string) {
+        return this.polls.filter(p => p.active && p.channel?.id === channelID);
+    }
+
     public addEvent(id:string, event:CronJob<null,null>) {
         let events = this.schedule.get(id);
         if(!events) {
