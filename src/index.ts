@@ -1,5 +1,5 @@
 import * as dotenv from "dotenv";
-import { Client, IntentsBitField, Events, ButtonInteraction, StringSelectMenuInteraction } from "discord.js";
+import { Client, IntentsBitField, Events, ButtonInteraction, StringSelectMenuInteraction, ModalSubmitInteraction, Interaction } from "discord.js";
 import CommandsHandler from "./handlers/CommandsHandler.js";
 import NewPollModal from "./components/NewPollModal.js";
 import NewPollReturnButton from "./components/NewPollReturnButton.js";
@@ -7,6 +7,8 @@ import { DataHandlerObject } from "./handlers/DataHandler.js";
 import StartPollButton from "./components/StartPollButton.js";
 import PollMenu from "./components/PollMenu.js";
 import { Poll } from "./utility/Poll.js";
+import ScheduleModal from "./components/ScheduleModal.js";
+import ActivePollsMenu from "./components/ActivePollsMenu.js";
 
 class Init {
 	private client = new Client({
@@ -74,6 +76,10 @@ class Init {
 			if(modalId.startsWith("NewPollModal")) {
 				await NewPollModal.submit(interaction);
 			}
+			else if(modalId.startsWith("Schedule")) {
+				const dataID = modalId.substring(9);
+				this.pollDataInteraction(dataID, ScheduleModal.submit, interaction);
+			}
 		});
 	}
 
@@ -103,13 +109,20 @@ class Init {
 				const dataID = menuID.substring(5);
 				this.pollDataInteraction(dataID, PollMenu.select, interaction);
 			}
+			else if(menuID.startsWith("Active")) {
+				const dataID = interaction.values[0];
+				this.pollDataInteraction(dataID, ActivePollsMenu.select, interaction);
+			}
 		})
 	}
 
 	private async pollDataInteraction(
 		dataID:string,
-		execute:(interaction:ButtonInteraction | StringSelectMenuInteraction, poll:Poll) => Promise<void>,
-		interaction:ButtonInteraction | StringSelectMenuInteraction
+		execute:(
+			interaction:Interaction, 
+			poll:Poll
+		) => Promise<void>,
+		interaction:ButtonInteraction | StringSelectMenuInteraction | ModalSubmitInteraction
 	) {
 		const poll = DataHandlerObject.getPoll(dataID);
 

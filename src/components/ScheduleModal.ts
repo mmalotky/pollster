@@ -1,7 +1,6 @@
-import { ActionRowBuilder, ModalBuilder, ModalSubmitInteraction, TextInputBuilder, TextInputStyle } from "discord.js";
-import { Poll } from "../utility/Poll.js";
+import { ActionRowBuilder, Interaction, ModalBuilder, TextInputBuilder, TextInputStyle } from "discord.js";
+import { Poll, reschedulePoll } from "../utility/Poll.js";
 import DateFuncions from "../utility/DateFunctions.js";
-import { DataHandlerObject } from "../handlers/DataHandler.js";
 
 export default class ScheduleModal extends ModalBuilder {
     private id:string;
@@ -47,7 +46,12 @@ export default class ScheduleModal extends ModalBuilder {
         this.addComponents(r1, r2);
     }
 
-    public static async submit(interaction:ModalSubmitInteraction) {
+    public static async submit(
+        interaction:Interaction,
+        poll:Poll
+    ) {
+        if(!interaction.isModalSubmit()) return;
+
         const date = interaction.fields.getTextInputValue("EndDateInput");
         const time = interaction.fields.getTextInputValue("EndTimeInput");
 
@@ -68,6 +72,10 @@ export default class ScheduleModal extends ModalBuilder {
             return;
         }
 
-        //set new end date and schedule
+        reschedulePoll(poll, dateTime);
+
+        await interaction.reply({
+            content: `The poll "${poll.title}" was rescheduled by ${interaction.user.username} to end on ${poll.endDate}`
+        });
     }
 }

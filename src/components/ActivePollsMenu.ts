@@ -1,7 +1,7 @@
-import { CacheType, ChatInputCommandInteraction, StringSelectMenuBuilder, StringSelectMenuInteraction, StringSelectMenuOptionBuilder } from "discord.js";
-import { DataHandlerObject } from "../handlers/DataHandler";
-import ScheduleModal from "./ScheduleModal";
-import { Poll } from "../utility/Poll";
+import { CacheType, ChatInputCommandInteraction, Interaction, StringSelectMenuBuilder, StringSelectMenuOptionBuilder } from "discord.js";
+import { DataHandlerObject } from "../handlers/DataHandler.js";
+import ScheduleModal from "./ScheduleModal.js";
+import { Poll } from "../utility/Poll.js";
 
 export default class ActivePollsMenu extends StringSelectMenuBuilder {
     constructor(interaction: ChatInputCommandInteraction<CacheType>) {
@@ -26,9 +26,11 @@ export default class ActivePollsMenu extends StringSelectMenuBuilder {
     }
 
     public static async select(
-        interaction:StringSelectMenuInteraction, 
+        interaction:Interaction, 
         poll:Poll
     ) {
+        if(!interaction.isStringSelectMenu()) return;
+        
         const scheduleModal = new ScheduleModal(poll);
         interaction.showModal(scheduleModal);
     }
