@@ -63,7 +63,7 @@ export default class NewPollModal extends ModalBuilder {
 
     private build() {
         this.setCustomId(this.id);
-        this.setTitle("New Modal");
+        this.setTitle("New Poll");
 
         const r1 = new ActionRowBuilder<TextInputBuilder>()
             .addComponents(this.titleInput);
