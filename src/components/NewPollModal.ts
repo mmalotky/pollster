@@ -137,8 +137,9 @@ export default class NewPollModal extends ModalBuilder {
             });
         }
         else {
+            const msg = `Confirm details:\nTitle = ${newPoll.title}\nOptions = ${newPoll.options.flatMap(o=>o.label)}\nEnd Date = ${newPoll.endDate}`;
             await interaction.reply({
-                content: `Poll:${JSON.stringify(newPoll)}`, 
+                content: msg, 
                 components: [ar],
                 ephemeral: true
             });

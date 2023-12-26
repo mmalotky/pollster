@@ -1,5 +1,5 @@
 import { Poll } from "../utility/Poll.js";
-import { Interaction, StringSelectMenuBuilder, StringSelectMenuOptionBuilder } from "discord.js";
+import { Interaction, StringSelectMenuBuilder, StringSelectMenuOptionBuilder, bold } from "discord.js";
 
 export default class PollMenu extends StringSelectMenuBuilder {
 
@@ -27,7 +27,7 @@ export default class PollMenu extends StringSelectMenuBuilder {
         for(const selection of selections) {
             const option = poll.options.find(o => o.label === selection);
             if(option) {
-                option.votes.add(interaction.user.id);
+                option.votes.add(interaction.user.username);
             }
             else {
                 console.log(`[ERR]: Option ${selection} does not exist in Poll ${poll.id}`)
@@ -40,7 +40,7 @@ export default class PollMenu extends StringSelectMenuBuilder {
         }
 
         await interaction.reply({
-            content:`Selected:${selections}`,
+            content:`${bold(poll.title)}\nSelected: ${selections}`,
             ephemeral:true
         })
     }

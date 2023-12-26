@@ -1,4 +1,4 @@
-import { ActionRowBuilder, ButtonBuilder, ButtonStyle, Interaction, StringSelectMenuBuilder } from "discord.js";
+import { ActionRowBuilder, ButtonBuilder, ButtonStyle, Interaction, StringSelectMenuBuilder, bold } from "discord.js";
 import { Poll, scheduleReminders } from "../utility/Poll.js";
 import PollMenu from "./PollMenu.js";
 
@@ -32,7 +32,7 @@ export default class StartPollButton extends ButtonBuilder {
         ar.addComponents(pollMenu);
 
         await interaction.reply({
-            content:poll.title,
+            content:bold(poll.title),
             components:[ar]
         });
 
