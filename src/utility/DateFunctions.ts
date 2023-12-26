@@ -95,4 +95,11 @@ export default class DateFuncions {
 		const time = Math.floor(date.getTime()/1000);
 		return `<t:${time}${format? `:${format}` : ""}>`;
 	}
+
+	public static getTimeZone() {
+		const match = new Date().toString().match(/([A-Z]+[+-][0-9]+)/);
+		
+		if(!match) return `UTC ${new Date().getTimezoneOffset() / 60}`;
+		else return match[0];
+	}
 }

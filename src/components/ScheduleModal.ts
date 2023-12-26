@@ -6,7 +6,7 @@ export default class ScheduleModal extends ModalBuilder {
     private id:string;
     private title:string;
     
-    private timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    private timezone = DateFuncions.getTimeZone();
     
     private endDateInput = new TextInputBuilder()
         .setCustomId("EndDateInput")

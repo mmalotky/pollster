@@ -25,7 +25,7 @@ export default class NewPollModal extends ModalBuilder {
         .setMaxLength(1000)
         .setStyle(TextInputStyle.Paragraph);
 
-    private timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    private timezone = DateFuncions.getTimeZone();
     
     private endDateInput = new TextInputBuilder()
         .setCustomId("EndDateInput")
