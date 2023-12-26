@@ -90,4 +90,9 @@ export default class DateFuncions {
 		result = result.trim();
 		return result;
 	}
+
+	public static convertToDiscordTime(date:Date, format?:string) {
+		const time = Math.floor(date.getTime()/1000);
+		return `<t:${time}${format? `:${format}` : ""}>`;
+	}
 }

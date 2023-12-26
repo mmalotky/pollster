@@ -5,10 +5,12 @@ import DateFuncions from "../utility/DateFunctions.js";
 export default class ScheduleModal extends ModalBuilder {
     private id:string;
     private title:string;
-
+    
+    private timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    
     private endDateInput = new TextInputBuilder()
         .setCustomId("EndDateInput")
-        .setLabel("End Date (mm/dd/yyyy)")
+        .setLabel(`End Date in ${this.timezone} (mm/dd/yyyy)`)
         .setRequired(true)
         .setMinLength(10)
         .setMaxLength(10)
@@ -16,7 +18,7 @@ export default class ScheduleModal extends ModalBuilder {
     
     private endTimeInput = new TextInputBuilder()
         .setCustomId("EndTimeInput")
-        .setLabel("End Time (hh:mm)")
+        .setLabel(`End Time in ${this.timezone} (hh:mm)`)
         .setRequired(true)
         .setMinLength(5)
         .setMaxLength(5)
@@ -74,8 +76,9 @@ export default class ScheduleModal extends ModalBuilder {
 
         reschedulePoll(poll, dateTime);
 
+        const msg =  `The poll "${poll.title}" was rescheduled by ${interaction.user.tag} to end on ${DateFuncions.convertToDiscordTime(poll.endDate)}`;
         await interaction.reply({
-            content: `The poll "${poll.title}" was rescheduled by ${interaction.user.username} to end on ${poll.endDate}`
+            content: msg
         });
     }
 }

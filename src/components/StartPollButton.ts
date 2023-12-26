@@ -1,6 +1,7 @@
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle, Interaction, StringSelectMenuBuilder, bold } from "discord.js";
 import { Poll, scheduleReminders } from "../utility/Poll.js";
 import PollMenu from "./PollMenu.js";
+import DateFuncions from "../utility/DateFunctions.js";
 
 export default class StartPollButton extends ButtonBuilder {
     constructor(id:string) {
@@ -32,7 +33,8 @@ export default class StartPollButton extends ButtonBuilder {
         ar.addComponents(pollMenu);
 
         await interaction.reply({
-            content:bold(poll.title),
+            content:`${bold(poll.title)}\n`
+                + `Ends ${DateFuncions.convertToDiscordTime(poll.endDate)}`,
             components:[ar]
         });
 

@@ -25,9 +25,11 @@ export default class NewPollModal extends ModalBuilder {
         .setMaxLength(1000)
         .setStyle(TextInputStyle.Paragraph);
 
+    private timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    
     private endDateInput = new TextInputBuilder()
         .setCustomId("EndDateInput")
-        .setLabel("End Date (mm/dd/yyyy)")
+        .setLabel(`End Date in ${this.timezone} (mm/dd/yyyy)`)
         .setRequired(true)
         .setMinLength(10)
         .setMaxLength(10)
@@ -35,18 +37,16 @@ export default class NewPollModal extends ModalBuilder {
     
     private endTimeInput = new TextInputBuilder()
         .setCustomId("EndTimeInput")
-        .setLabel("End Time (hh:mm)")
+        .setLabel(`End Time in ${this.timezone} (hh:mm)`)
         .setRequired(true)
         .setMinLength(5)
         .setMaxLength(5)
-        .setStyle(TextInputStyle.Short)
+        .setStyle(TextInputStyle.Short);
 
     constructor(title?:string, options?:Option[], dateTime?:Date) {
         super();
 
         if(!title || !options || !dateTime) {
-            this.titleInput.setValue("My Poll");
-            this.optionsInput.setValue("Enter options here");
             this.setToDefaultEndDateTime();
         }
         else {
@@ -137,8 +137,12 @@ export default class NewPollModal extends ModalBuilder {
             });
         }
         else {
-            const msg = `Confirm details:\nTitle = ${newPoll.title}\nOptions = ${newPoll.options.flatMap(o=>o.label)}\nEnd Date = ${newPoll.endDate}`;
-            await interaction.reply({
+            const msg = `Confirm details:\n`
+                + `Title = ${newPoll.title}\n`
+                + `Options = ${newPoll.options.flatMap(o=>o.label)}\n`
+                + `End Date = ${DateFuncions.convertToDiscordTime(newPoll.endDate)}`;
+            
+                await interaction.reply({
                 content: msg, 
                 components: [ar],
                 ephemeral: true
