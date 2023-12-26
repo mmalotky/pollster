@@ -2,6 +2,7 @@ import { CronJob } from "cron";
 import { Poll } from "../utility/Poll";
 import { DataHandlerObject } from "./DataHandler";
 import DateFuncions from "../utility/DateFunctions";
+import ResultsChart from "../components/ResultsChart";
 
 export default class ScheduleHandler {
     public static createJob(poll:Poll, date:Date) {
@@ -27,11 +28,10 @@ export default class ScheduleHandler {
             return;
         }
 
-        const message = `${poll.title} - RESULTS\n` + poll.options
-            .map(o => `${o.label}: ${o.votes.size}`)
-            .join("\n");
-
-        poll.channel.send(message);
+        const chart = new ResultsChart(poll);
+        poll.channel.send({
+            embeds: [chart.getEmbed()]
+        });
     }
 
     private static sendReminder(poll:Poll, date:Date) {

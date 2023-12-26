@@ -41,6 +41,7 @@
     "tsx": "*",
     "tsconfig-paths": "*",
     "typescript": "*",
-    "cron":"*"
+    "cron":"*",
+    "quickchart-js": "*"
   }
 }
