@@ -14,8 +14,11 @@ export default class ScheduleCommand implements Command {
 
     async execute(interaction: ChatInputCommandInteraction<CacheType>) {
         const activePollsMenu = new ActivePollsMenu(interaction);
-        await activePollsMenu.setActivePollOptions(interaction.channelId);
-
+        if(!interaction.channel) {
+            return console.log(`[ERR] Missing channel.`);
+        }
+        await activePollsMenu.setActivePollOptions(interaction.channel);
+        
         if(activePollsMenu.options.length === 0) {
             await interaction.reply({
                 content: "No Active Polls",

@@ -1,3 +1,4 @@
+import { DataHandlerObject } from "../handlers/DataHandler.js";
 import { Poll } from "../utility/Poll.js";
 import { Interaction, StringSelectMenuBuilder, StringSelectMenuOptionBuilder, bold } from "discord.js";
 
@@ -27,7 +28,7 @@ export default class PollMenu extends StringSelectMenuBuilder {
         for(const selection of selections) {
             const option = poll.options.find(o => o.label === selection);
             if(option) {
-                if(!option.votes.includes(interaction.user.id)) {
+                if(!option.votes.includes(interaction.user.username)) {
                     option.votes.push(interaction.user.username);
                 }
             }
@@ -38,8 +39,9 @@ export default class PollMenu extends StringSelectMenuBuilder {
         
         const unselected = poll.options.filter(o => !selections.includes(o.label));
         for(const option of unselected) {
-            option.votes.filter(username => username !== interaction.user.username);
+            option.votes = option.votes.filter(username => username !== interaction.user.username);
         }
+        DataHandlerObject.setPoll(poll);
 
         await interaction.reply({
             content:`${bold(poll.title)}\nSelected: ${selections}`,

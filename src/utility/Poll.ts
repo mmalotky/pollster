@@ -32,6 +32,7 @@ export function scheduleReminders(poll:Poll) {
 
 export function reschedulePoll(poll:Poll, date:Date) {
     poll.endDate = date;
+    DataHandlerObject.setPoll(poll);
     DataHandlerObject.removeEvents(poll.id);
     schedulePoll(poll);
     scheduleReminders(poll);

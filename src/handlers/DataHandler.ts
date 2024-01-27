@@ -1,4 +1,4 @@
-import { Collection } from "discord.js";
+import { Collection, TextBasedChannel } from "discord.js";
 import { Poll, schedulePoll } from "../utility/Poll.js";
 import { CronJob } from "cron";
 import fs from "fs";
@@ -22,6 +22,18 @@ class DataHandler {
         schedulePoll(poll);
 	}
 
+    public async setPoll(poll:Poll) {
+        if(!poll.channel) {
+            return console.log(`[ERR] Poll ${poll.id} missing channel.`);
+        }
+
+        const path = this.getFilePath(poll.id, poll.channel.id);
+        const json = JSON.stringify(poll);
+        fs.writeFile(path, json, (err) => {
+            if(err) console.log("[WARN] Poll data lost or expired.");
+        });
+    }
+
     public async removePoll(poll:Poll) {
         if(!poll.channel) {
             return console.log(`[ERR] Poll ${poll.id} missing channel.`);
@@ -32,16 +44,17 @@ class DataHandler {
         this.removeEvents(poll.id);
     }
 
-    public async getPoll(pollID:string, channelID:string | null) {
-        if(!channelID) {
+    public async getPoll(pollID:string, channel:TextBasedChannel | null) {
+        if(!channel) {
             return console.log(`[ERR] Poll ${pollID} missing channel.`);
         }
-        const path = this.getFilePath(pollID, channelID);
+        const path = this.getFilePath(pollID, channel.id);
         try {
             const data = await readFile(path, {encoding: "utf8"});
 
             const poll:Poll = JSON.parse(data);
             poll.endDate = new Date(poll.endDate);
+            poll.channel = channel;
 
             return poll;
         } catch (err) {
@@ -49,13 +62,13 @@ class DataHandler {
         }
     }
 
-    public async getActivePolls(channelID:string) {
-        const folderPath:string = `${this.dataPath}/${channelID.substring(0,2)}/${channelID.substring(2)}`;
+    public async getActivePolls(channel:TextBasedChannel) {
+        const folderPath:string = `${this.dataPath}/${channel.id.substring(0,2)}/${channel.id.substring(2)}`;
         const files = await readdir(folderPath);
         const polls:Poll[] = [];
         for(const file of files) {
             const pollID = file.substring(0, file.indexOf("."));
-            const poll = await this.getPoll(pollID, channelID);
+            const poll = await this.getPoll(pollID, channel);
             if(poll && poll.active) polls.push(poll);
         }
         return polls;

@@ -2,6 +2,7 @@ import { ActionRowBuilder, ButtonBuilder, ButtonStyle, Interaction, StringSelect
 import { Poll, scheduleReminders } from "../utility/Poll.js";
 import PollMenu from "./PollMenu.js";
 import DateFuncions from "../utility/DateFunctions.js";
+import { DataHandlerObject } from "../handlers/DataHandler.js";
 
 export default class StartPollButton extends ButtonBuilder {
     constructor(id:string) {
@@ -26,8 +27,8 @@ export default class StartPollButton extends ButtonBuilder {
         }
 
         poll.active = true;
-        poll.channel = interaction.channel;
-        
+        DataHandlerObject.setPoll(poll);
+
         const ar = new ActionRowBuilder<StringSelectMenuBuilder>();
         const pollMenu = new PollMenu(poll);
         ar.addComponents(pollMenu);

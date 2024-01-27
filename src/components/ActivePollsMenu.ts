@@ -1,4 +1,4 @@
-import { CacheType, ChatInputCommandInteraction, Interaction, StringSelectMenuBuilder, StringSelectMenuOptionBuilder } from "discord.js";
+import { CacheType, ChatInputCommandInteraction, Interaction, StringSelectMenuBuilder, StringSelectMenuOptionBuilder, TextBasedChannel } from "discord.js";
 import { DataHandlerObject } from "../handlers/DataHandler.js";
 import ScheduleModal from "./ScheduleModal.js";
 import { Poll } from "../utility/Poll.js";
@@ -14,13 +14,13 @@ export default class ActivePollsMenu extends StringSelectMenuBuilder {
         }
     }
 
-    async setActivePollOptions(channelID:string) {
-        const options = await this.getActivePollOptions(channelID);
+    async setActivePollOptions(channel:TextBasedChannel) {
+        const options = await this.getActivePollOptions(channel);
         this.setOptions(options);
     }
 
-    private async getActivePollOptions(channelID:string) {
-        const pollsMap = await DataHandlerObject.getActivePolls(channelID);
+    private async getActivePollOptions(channel:TextBasedChannel) {
+        const pollsMap = await DataHandlerObject.getActivePolls(channel);
         return pollsMap.map(p => {
             return new StringSelectMenuOptionBuilder()
                 .setLabel(`"${p.title}" | ends ${p.endDate}`)

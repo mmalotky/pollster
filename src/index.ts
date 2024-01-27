@@ -124,7 +124,7 @@ class Init {
 		) => Promise<void>,
 		interaction:ButtonInteraction | StringSelectMenuInteraction | ModalSubmitInteraction
 	) {
-		const poll = await DataHandlerObject.getPoll(dataID, interaction.channelId);
+		const poll = await DataHandlerObject.getPoll(dataID, interaction.channel);
 
 		if(poll) {
 			execute(interaction, poll);
