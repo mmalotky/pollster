@@ -27,7 +27,9 @@ export default class PollMenu extends StringSelectMenuBuilder {
         for(const selection of selections) {
             const option = poll.options.find(o => o.label === selection);
             if(option) {
-                option.votes.add(interaction.user.username);
+                if(!option.votes.includes(interaction.user.id)) {
+                    option.votes.push(interaction.user.username);
+                }
             }
             else {
                 console.log(`[ERR]: Option ${selection} does not exist in Poll ${poll.id}`)
@@ -36,7 +38,7 @@ export default class PollMenu extends StringSelectMenuBuilder {
         
         const unselected = poll.options.filter(o => !selections.includes(o.label));
         for(const option of unselected) {
-            option.votes.delete(interaction.user.username);
+            option.votes.filter(username => username !== interaction.user.username);
         }
 
         await interaction.reply({

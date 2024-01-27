@@ -107,7 +107,8 @@ export default class NewPollModal extends ModalBuilder {
             || optionValues.filter(o => o.length > 100).length > 0
         ) errors.push("Options");
         const optionList:Option[] = optionValues.map(o => {
-            return {label:o, votes:new Set<string>()}
+            const votes:string[] = [];
+            return {label:o, votes:votes}
         });
 
         const dateTime = DateFuncions.parseDateTime(date, time);
@@ -116,12 +117,13 @@ export default class NewPollModal extends ModalBuilder {
         const newPoll:Poll = {
             id:dataID,
             title:title,
-            channel:null,
+            channel:interaction.channel,
             options:optionList, 
             endDate:(dateTime? dateTime: DateFuncions.getTomorrow()),
             active:false
         };
-        DataHandlerObject.addPoll(dataID, newPoll);
+
+        DataHandlerObject.addPoll(newPoll);
         
         const returnButton = new NewPollReturnButton(dataID);
         const startbutton = new StartPollButton(dataID);
@@ -142,7 +144,7 @@ export default class NewPollModal extends ModalBuilder {
                 + `Options = ${newPoll.options.flatMap(o=>o.label)}\n`
                 + `End Date = ${DateFuncions.convertToDiscordTime(newPoll.endDate)}`;
             
-                await interaction.reply({
+            interaction.reply({
                 content: msg, 
                 components: [ar],
                 ephemeral: true

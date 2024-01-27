@@ -13,7 +13,7 @@ export type Poll = {
 
 export type Option = {
     label:string;
-    votes:Set<string>;
+    votes:string[];
 }
 
 export function schedulePoll(poll:Poll) {

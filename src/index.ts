@@ -124,14 +124,14 @@ class Init {
 		) => Promise<void>,
 		interaction:ButtonInteraction | StringSelectMenuInteraction | ModalSubmitInteraction
 	) {
-		const poll = DataHandlerObject.getPoll(dataID);
+		const poll = await DataHandlerObject.getPoll(dataID, interaction.channelId);
 
 		if(poll) {
-			await execute(interaction, poll);
+			execute(interaction, poll);
 		}
 		else {
 			console.log(`[ERR] Poll ${dataID} data not found.`);
-			await interaction.reply({
+			interaction.reply({
 				content:"Poll data was lost or corrupted. Please make a new poll.",
 				ephemeral:true
 			})

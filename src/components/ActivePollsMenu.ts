@@ -12,12 +12,15 @@ export default class ActivePollsMenu extends StringSelectMenuBuilder {
             console.log("Channel is null");
             return;
         }
-        const options = this.getActivePollOptions(interaction.channel.id);
+    }
+
+    async setActivePollOptions(channelID:string) {
+        const options = await this.getActivePollOptions(channelID);
         this.setOptions(options);
     }
 
-    private getActivePollOptions(channelID:string) {
-        const pollsMap = DataHandlerObject.getActivePolls(channelID);
+    private async getActivePollOptions(channelID:string) {
+        const pollsMap = await DataHandlerObject.getActivePolls(channelID);
         return pollsMap.map(p => {
             return new StringSelectMenuOptionBuilder()
                 .setLabel(`"${p.title}" | ends ${p.endDate}`)

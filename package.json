@@ -42,6 +42,7 @@
     "tsconfig-paths": "*",
     "typescript": "*",
     "cron":"*",
-    "quickchart-js": "*"
+    "quickchart-js": "*",
+    "fs":"*"
   }
 }

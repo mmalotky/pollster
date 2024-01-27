@@ -32,7 +32,7 @@ export default class NewPollReturnButton extends ButtonBuilder {
             poll.endDate
         );
 
-        DataHandlerObject.removePoll(poll.id);
+        DataHandlerObject.removePoll(poll);
 
         await interaction.showModal(modal);
     }

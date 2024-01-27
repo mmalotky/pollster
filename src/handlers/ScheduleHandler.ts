@@ -20,7 +20,7 @@ export default class ScheduleHandler {
     }
 
     private static sendResults(poll:Poll) {
-        DataHandlerObject.removePoll(poll.id);
+        DataHandlerObject.removePoll(poll);
 
         if(!poll.active) return;
         if(!poll.channel) {

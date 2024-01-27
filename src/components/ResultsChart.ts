@@ -15,7 +15,7 @@ export default class ResultsChart extends QuickChart {
                 datasets: [
                     {
                         label: "votes",
-                        data: poll.options.flatMap(o=>o.votes.size)
+                        data: poll.options.flatMap(o=>o.votes.length)
                     }
                 ]
             },
