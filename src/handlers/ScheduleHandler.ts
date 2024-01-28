@@ -1,14 +1,17 @@
 import { CronJob } from "cron";
 import { Poll } from "../utility/Poll";
-import { DataHandlerObject } from "./DataHandler";
 import DateFuncions from "../utility/DateFunctions";
 import ResultsChart from "../components/ResultsChart";
+import { Collection } from "discord.js";
+import DataHandler from "./DataHandler";
 
 export default class ScheduleHandler {
-    public static createJob(poll:Poll, date:Date) {
-        if(date.getTime() < Date.now()) return;
+    private static schedule = new Collection<string, CronJob<null,null>[]>();
 
-        const job = new CronJob(
+    public static addEvent(poll:Poll, date:Date) {
+        if(DateFuncions.isExpired(date)) return;
+
+        const event = new CronJob(
             date,
             () => {
                 if(poll.endDate.getTime() === date.getTime()) this.sendResults(poll);
@@ -16,11 +19,28 @@ export default class ScheduleHandler {
             }
         );
 
-        DataHandlerObject.addEvent(poll.id, job);
+        let events = this.schedule.get(poll.id);
+        if(!events) {
+            events = new Array<CronJob<null,null>>;
+            this.schedule.set(poll.id, events);
+        }
+        event.start();
+        events.push(event);
+    }
+
+    public static removeEvents(id:string) {
+        const events = this.schedule.get(id);
+        if(events) events.forEach(e => e.stop());
+        this.schedule.delete(id);
+    }
+
+    public static getEvents(id:string) {
+        return this.schedule.get(id);
     }
 
     private static sendResults(poll:Poll) {
-        DataHandlerObject.removePoll(poll);
+        DataHandler.removePoll(poll);
+        this.removeEvents(poll.id);
 
         if(!poll.active) return;
         if(!poll.channel) {

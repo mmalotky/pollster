@@ -1,14 +1,12 @@
-import { Collection, TextBasedChannel } from "discord.js";
-import { Poll, schedulePoll } from "../utility/Poll.js";
-import { CronJob } from "cron";
+import { TextBasedChannel } from "discord.js";
+import { Poll, Option } from "../utility/Poll.js";
 import fs from "fs";
 import {readFile, readdir} from "fs/promises";
 
-class DataHandler {
-    private schedule = new Collection<string, CronJob<null,null>[]>();
-    private dataPath = "./data";
+export default class DataHandler {
+    private static DATA_PATH = "./data";
 
-	public async addPoll(poll:Poll) {
+	public static async addPoll(poll:Poll) {
         if(!poll.channel) {
             return console.log(`[ERR] Poll ${poll.id} missing channel.`);
         }
@@ -18,13 +16,21 @@ class DataHandler {
 
         const json = JSON.stringify(poll);
         fs.writeFile(path, json, (err) => this.handleIOErr(err));
-
-        schedulePoll(poll);
 	}
 
-    public async setPoll(poll:Poll) {
+    public static async setPoll(poll:Poll, value: boolean | Option[] | Date) {
         if(!poll.channel) {
             return console.log(`[ERR] Poll ${poll.id} missing channel.`);
+        }
+
+        if(typeof value === "boolean") {
+            poll.active = value;
+        }
+        else if (value instanceof Date) {
+            poll.endDate = value;
+        }
+        else if (Array.isArray(value)) {
+            poll.options = value;
         }
 
         const path = this.getFilePath(poll.id, poll.channel.id);
@@ -34,17 +40,15 @@ class DataHandler {
         });
     }
 
-    public async removePoll(poll:Poll) {
+    public static async removePoll(poll:Poll) {
         if(!poll.channel) {
             return console.log(`[ERR] Poll ${poll.id} missing channel.`);
         }
         const path = this.getFilePath(poll.id, poll.channel.id);
         fs.rm(path, (err) => this.handleIOErr(err));
-
-        this.removeEvents(poll.id);
     }
 
-    public async getPoll(pollID:string, channel:TextBasedChannel | null) {
+    public static async getPoll(pollID:string, channel:TextBasedChannel | null) {
         if(!channel) {
             return console.log(`[ERR] Poll ${pollID} missing channel.`);
         }
@@ -62,8 +66,8 @@ class DataHandler {
         }
     }
 
-    public async getActivePolls(channel:TextBasedChannel) {
-        const folderPath:string = `${this.dataPath}/${channel.id.substring(0,2)}/${channel.id.substring(2)}`;
+    public static async getActivePolls(channel:TextBasedChannel) {
+        const folderPath:string = `${this.DATA_PATH}/${channel.id.substring(0,2)}/${channel.id.substring(2)}`;
         const files = await readdir(folderPath);
         const polls:Poll[] = [];
         for(const file of files) {
@@ -74,31 +78,11 @@ class DataHandler {
         return polls;
     }
 
-    public addEvent(id:string, event:CronJob<null,null>) {
-        let events = this.schedule.get(id);
-        if(!events) {
-            events = new Array<CronJob<null,null>>;
-            this.schedule.set(id, events);
-        }
-        event.start();
-        events.push(event);
+    private static getFilePath(pollID:string, channelID:string) {
+        return `${this.DATA_PATH}/${channelID.substring(0,2)}/${channelID.substring(2)}/${pollID}.json`;
     }
 
-    public removeEvents(id:string) {
-        const events = this.schedule.get(id);
-        if(events) events.forEach(e => e.stop());
-        this.schedule.delete(id);
-    }
-
-    public getEvents(id:string) {
-        return this.schedule.get(id);
-    }
-
-    private getFilePath(pollID:string, channelID:string) {
-        return `${this.dataPath}/${channelID.substring(0,2)}/${channelID.substring(2)}/${pollID}.json`;
-    }
-
-    private handleIOErr(err: NodeJS.ErrnoException | null) {
+    private static handleIOErr(err: NodeJS.ErrnoException | null) {
         if(err) {
             console.log(err);
             return false;
@@ -106,5 +90,3 @@ class DataHandler {
         else return true;
     }
 }
-
-export const DataHandlerObject = new DataHandler;

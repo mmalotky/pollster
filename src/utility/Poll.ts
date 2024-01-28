@@ -1,6 +1,6 @@
 import { TextBasedChannel } from "discord.js";
 import ScheduleHandler from "../handlers/ScheduleHandler.js";
-import { DataHandlerObject } from "../handlers/DataHandler.js";
+import DataHandler from "../handlers/DataHandler.js";
 
 export type Poll = {
     id:string;
@@ -17,23 +17,43 @@ export type Option = {
 }
 
 export function schedulePoll(poll:Poll) {
-    ScheduleHandler.createJob(poll, poll.endDate);
+    ScheduleHandler.addEvent(poll, poll.endDate);
 }
 
 export function scheduleReminders(poll:Poll) {
     const hourReminder = new Date(poll.endDate);
     hourReminder.setHours(hourReminder.getHours() - 1);
-    ScheduleHandler.createJob(poll, hourReminder);
+    ScheduleHandler.addEvent(poll, hourReminder);
 
     const dayReminder = new Date(poll.endDate);
     dayReminder.setDate(dayReminder.getDate() - 1);
-    ScheduleHandler.createJob(poll, dayReminder);
+    ScheduleHandler.addEvent(poll, dayReminder);
 }
 
 export function reschedulePoll(poll:Poll, date:Date) {
-    poll.endDate = date;
-    DataHandlerObject.setPoll(poll);
-    DataHandlerObject.removeEvents(poll.id);
+    DataHandler.setPoll(poll, date);
+    ScheduleHandler.removeEvents(poll.id);
     schedulePoll(poll);
     scheduleReminders(poll);
+}
+
+export function vote(poll:Poll, selections:string[], username:string) {
+    const options = poll.options;
+    for(const selection of selections) {
+        const option = options.find(o => o.label === selection);
+        if(option) {
+            if(!option.votes.includes(username)) {
+                option.votes.push(username);
+            }
+        }
+        else {
+            console.log(`[ERR]: Option ${selection} does not exist in Poll ${poll.id}`)
+        }
+    }
+    
+    const unselected = options.filter(o => !selections.includes(o.label));
+    for(const option of unselected) {
+        option.votes = option.votes.filter(user => user !== username);
+    }
+    DataHandler.setPoll(poll, options);
 }

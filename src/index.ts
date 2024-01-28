@@ -3,12 +3,12 @@ import { Client, IntentsBitField, Events, ButtonInteraction, StringSelectMenuInt
 import CommandsHandler from "./handlers/CommandsHandler.js";
 import NewPollModal from "./components/NewPollModal.js";
 import NewPollReturnButton from "./components/NewPollReturnButton.js";
-import { DataHandlerObject } from "./handlers/DataHandler.js";
 import StartPollButton from "./components/StartPollButton.js";
 import PollMenu from "./components/PollMenu.js";
 import { Poll } from "./utility/Poll.js";
 import ScheduleModal from "./components/ScheduleModal.js";
 import ActivePollsMenu from "./components/ActivePollsMenu.js";
+import DataHandler from "./handlers/DataHandler.js";
 
 class Init {
 	private client = new Client({
@@ -124,7 +124,7 @@ class Init {
 		) => Promise<void>,
 		interaction:ButtonInteraction | StringSelectMenuInteraction | ModalSubmitInteraction
 	) {
-		const poll = await DataHandlerObject.getPoll(dataID, interaction.channel);
+		const poll = await DataHandler.getPoll(dataID, interaction.channel);
 
 		if(poll) {
 			execute(interaction, poll);

@@ -102,4 +102,8 @@ export default class DateFuncions {
 		if(!match) return `UTC ${new Date().getTimezoneOffset() / 60}`;
 		else return match[0];
 	}
+
+	public static isExpired(date:Date) {
+		return date.getTime() < Date.now();
+	}
 }

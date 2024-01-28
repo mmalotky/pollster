@@ -1,5 +1,4 @@
-import { DataHandlerObject } from "../handlers/DataHandler.js";
-import { Poll } from "../utility/Poll.js";
+import { Poll, vote } from "../utility/Poll.js";
 import { Interaction, StringSelectMenuBuilder, StringSelectMenuOptionBuilder, bold } from "discord.js";
 
 export default class PollMenu extends StringSelectMenuBuilder {
@@ -25,23 +24,7 @@ export default class PollMenu extends StringSelectMenuBuilder {
         if(!interaction.isStringSelectMenu()) return;
 
         const selections = interaction.values;
-        for(const selection of selections) {
-            const option = poll.options.find(o => o.label === selection);
-            if(option) {
-                if(!option.votes.includes(interaction.user.username)) {
-                    option.votes.push(interaction.user.username);
-                }
-            }
-            else {
-                console.log(`[ERR]: Option ${selection} does not exist in Poll ${poll.id}`)
-            }
-        }
-        
-        const unselected = poll.options.filter(o => !selections.includes(o.label));
-        for(const option of unselected) {
-            option.votes = option.votes.filter(username => username !== interaction.user.username);
-        }
-        DataHandlerObject.setPoll(poll);
+        vote(poll, selections, interaction.user.username);
 
         await interaction.reply({
             content:`${bold(poll.title)}\nSelected: ${selections}`,
