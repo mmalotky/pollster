@@ -1,10 +1,53 @@
-import { TextBasedChannel } from "discord.js";
+import { Client, TextBasedChannel } from "discord.js";
 import { Poll, Option } from "../utility/Poll.js";
 import fs from "fs";
 import {readFile, readdir} from "fs/promises";
+import DateFuncions from "../utility/DateFunctions.js";
+import ScheduleHandler from "./ScheduleHandler.js";
 
 export default class DataHandler {
     private static DATA_PATH = "./data";
+    private client:Client<boolean>;
+
+    constructor(client:Client) {
+        this.client = client;
+    }
+
+    public setup() {
+        console.log("[INFO] Setting up polls");
+        this.runPath(DataHandler.DATA_PATH);
+    }
+
+    private async runPath(path:string) {
+        const stats = fs.statSync(path);
+        if(stats.isDirectory()) {
+            const files = fs.readdirSync(path);
+            for(const file of files) {
+                this.runPath(`${path}/${file}`);
+            }
+        }
+        else {
+            const data = fs.readFileSync(path, { encoding: "utf-8" });
+            const poll:Poll = JSON.parse(data);
+            if(!poll.channel) {
+                return console.log(`[ERR] Poll ${poll.id} missing channel.`);
+            }
+
+            poll.endDate = new Date(poll.endDate);
+
+            const channel = await this.getChannel(poll.channel.id);
+            if(!channel) return console.log(`[ERR] Could not find Channel ${poll.channel.id}.`);
+            if(!channel.isTextBased()) return console.log(`[ERR] Channel ${poll.channel.id} is not a valid type.`);
+            poll.channel = channel;
+
+            if(DateFuncions.isExpired(poll.endDate)) {
+                DataHandler.removePoll(poll);
+            }
+            else {
+                ScheduleHandler.schedulePoll(poll);
+            }
+        }
+    }
 
 	public static async addPoll(poll:Poll) {
         if(!poll.channel) {
@@ -109,5 +152,9 @@ export default class DataHandler {
             return false;
         }
         else return true;
+    }
+
+    private async getChannel(channelID:string) {
+        return await this.client.channels.fetch(channelID);
     }
 }

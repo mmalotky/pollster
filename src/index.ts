@@ -20,6 +20,7 @@ class Init {
 		]
 	});
 	private commandsHandler = new CommandsHandler();
+	private dataHandler = new DataHandler(this.client);
 
 	main() {
 		dotenv.config();
@@ -29,6 +30,7 @@ class Init {
 		this.client.once(Events.ClientReady, () => {
 			console.log("[INFO] Pollster Starting");
 			this.commandsHandler.register();
+			this.dataHandler.setup();
 			this.handleCommands();
 			this.handleModals();
 			this.handleButtons();
