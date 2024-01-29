@@ -1,46 +1,34 @@
-import { CronJob } from "cron";
 import { Poll } from "../utility/Poll";
 import DateFuncions from "../utility/DateFunctions";
 import ResultsChart from "../components/ResultsChart";
-import { Collection } from "discord.js";
 import DataHandler from "./DataHandler";
+import Schedule from "../utility/Schedule";
 
 export default class ScheduleHandler {
-    private static schedule = new Collection<string, CronJob<null,null>[]>();
+    private static schedule = new Schedule();
 
-    public static addEvent(poll:Poll, date:Date) {
-        if(DateFuncions.isExpired(date)) return;
+    public static schedulePoll(poll:Poll) {
+        const date = poll.endDate;
+        this.schedule.addEvent(date, poll, this.sendResults);
 
-        const event = new CronJob(
-            date,
-            () => {
-                if(poll.endDate.getTime() === date.getTime()) this.sendResults(poll);
-                else this.sendReminder(poll, date);
-            }
-        );
+        const hourReminder = new Date(date);
+        hourReminder.setHours(hourReminder.getHours() - 1);
+        this.schedule.addEvent(hourReminder, poll, this.sendReminder);
 
-        let events = this.schedule.get(poll.id);
-        if(!events) {
-            events = new Array<CronJob<null,null>>;
-            this.schedule.set(poll.id, events);
-        }
-        event.start();
-        events.push(event);
+        const dayReminder = new Date(date);
+        dayReminder.setDate(dayReminder.getDate() - 1);
+        this.schedule.addEvent(dayReminder, poll, this.sendReminder);
     }
 
-    public static removeEvents(id:string) {
-        const events = this.schedule.get(id);
-        if(events) events.forEach(e => e.stop());
-        this.schedule.delete(id);
-    }
-
-    public static getEvents(id:string) {
-        return this.schedule.get(id);
+    public static reschedulePoll(poll:Poll, date:Date) {
+        DataHandler.setPoll(poll, date);
+        this.schedule.removeEvents(poll.id);
+        this.schedulePoll(poll);
     }
 
     private static sendResults(poll:Poll) {
         DataHandler.removePoll(poll);
-        this.removeEvents(poll.id);
+        ScheduleHandler.schedule.removeEvents(poll.id);
 
         if(!poll.active) return;
         if(!poll.channel) {

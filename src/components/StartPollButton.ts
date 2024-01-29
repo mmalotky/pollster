@@ -1,8 +1,9 @@
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle, Interaction, StringSelectMenuBuilder, bold } from "discord.js";
-import { Poll, scheduleReminders } from "../utility/Poll.js";
 import PollMenu from "./PollMenu.js";
+import { Poll } from "../utility/Poll.js";
 import DateFuncions from "../utility/DateFunctions.js";
 import DataHandler from "../handlers/DataHandler.js";
+import ScheduleHandler from "../handlers/ScheduleHandler.js"
 
 export default class StartPollButton extends ButtonBuilder {
     constructor(id:string) {
@@ -27,6 +28,7 @@ export default class StartPollButton extends ButtonBuilder {
         }
 
         DataHandler.setPoll(poll, true);
+        ScheduleHandler.schedulePoll(poll);
 
         const ar = new ActionRowBuilder<StringSelectMenuBuilder>();
         const pollMenu = new PollMenu(poll);
@@ -37,7 +39,5 @@ export default class StartPollButton extends ButtonBuilder {
                 + `Ends ${DateFuncions.convertToDiscordTime(poll.endDate)}`,
             components:[ar]
         });
-
-        scheduleReminders(poll);
     }
 }

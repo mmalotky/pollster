@@ -1,10 +1,11 @@
 import { ModalBuilder, TextInputBuilder } from "@discordjs/builders";
 import { ActionRowBuilder, ButtonBuilder, ModalSubmitInteraction, TextInputStyle } from "discord.js";
 import NewPollReturnButton from "./NewPollReturnButton.js";
-import { Option, Poll, schedulePoll } from "../utility/Poll.js";
+import { Option, Poll } from "../utility/Poll.js";
 import DateFuncions from "../utility/DateFunctions.js";
 import StartPollButton from "./StartPollButton.js";
 import DataHandler from "../handlers/DataHandler.js";
+import ScheduleHandler from "../handlers/ScheduleHandler.js";
 
 export default class NewPollModal extends ModalBuilder {
     private id = `NewPollModal:${crypto.randomUUID()}`;
@@ -124,7 +125,7 @@ export default class NewPollModal extends ModalBuilder {
         };
 
         DataHandler.addPoll(newPoll);
-        schedulePoll(newPoll);
+        ScheduleHandler.schedulePoll(newPoll);
         
         const returnButton = new NewPollReturnButton(dataID);
         const startbutton = new StartPollButton(dataID);

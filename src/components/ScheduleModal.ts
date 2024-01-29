@@ -1,6 +1,7 @@
 import { ActionRowBuilder, Interaction, ModalBuilder, TextInputBuilder, TextInputStyle } from "discord.js";
-import { Poll, reschedulePoll } from "../utility/Poll.js";
+import { Poll } from "../utility/Poll.js";
 import DateFuncions from "../utility/DateFunctions.js";
+import ScheduleHandler from "../handlers/ScheduleHandler.js";
 
 export default class ScheduleModal extends ModalBuilder {
     private id:string;
@@ -74,7 +75,7 @@ export default class ScheduleModal extends ModalBuilder {
             return;
         }
 
-        reschedulePoll(poll, dateTime);
+        ScheduleHandler.reschedulePoll(poll, dateTime);
 
         const msg =  `The poll "${poll.title}" was rescheduled by ${interaction.user.tag} to end on ${DateFuncions.convertToDiscordTime(poll.endDate)}`;
         await interaction.reply({

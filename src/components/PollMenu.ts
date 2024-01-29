@@ -1,4 +1,5 @@
-import { Poll, vote } from "../utility/Poll.js";
+import DataHandler from "../handlers/DataHandler.js";
+import { Poll } from "../utility/Poll.js";
 import { Interaction, StringSelectMenuBuilder, StringSelectMenuOptionBuilder, bold } from "discord.js";
 
 export default class PollMenu extends StringSelectMenuBuilder {
@@ -24,7 +25,7 @@ export default class PollMenu extends StringSelectMenuBuilder {
         if(!interaction.isStringSelectMenu()) return;
 
         const selections = interaction.values;
-        vote(poll, selections, interaction.user.username);
+        DataHandler.vote(poll, selections, interaction.user.username);
 
         await interaction.reply({
             content:`${bold(poll.title)}\nSelected: ${selections}`,

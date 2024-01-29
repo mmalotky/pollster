@@ -78,6 +78,27 @@ export default class DataHandler {
         return polls;
     }
 
+    public static vote(poll:Poll, selections:string[], username:string) {
+        const options = poll.options;
+        for(const selection of selections) {
+            const option = options.find(o => o.label === selection);
+            if(option) {
+                if(!option.votes.includes(username)) {
+                    option.votes.push(username);
+                }
+            }
+            else {
+                console.log(`[ERR]: Option ${selection} does not exist in Poll ${poll.id}`)
+            }
+        }
+        
+        const unselected = options.filter(o => !selections.includes(o.label));
+        for(const option of unselected) {
+            option.votes = option.votes.filter(user => user !== username);
+        }
+        this.setPoll(poll, options);
+    }
+
     private static getFilePath(pollID:string, channelID:string) {
         return `${this.DATA_PATH}/${channelID.substring(0,2)}/${channelID.substring(2)}/${pollID}.json`;
     }
