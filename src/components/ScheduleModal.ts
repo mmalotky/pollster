@@ -1,7 +1,8 @@
-import { ActionRowBuilder, Interaction, ModalBuilder, TextInputBuilder, TextInputStyle } from "discord.js";
+import { ActionRowBuilder, Interaction, InteractionResponseType, ModalBuilder, TextInputBuilder, TextInputStyle } from "discord.js";
 import { Poll } from "../utility/Poll.js";
 import DateFuncions from "../utility/DateFunctions.js";
 import ScheduleHandler from "../handlers/ScheduleHandler.js";
+import { ERR } from "../utility/LogMessage.js";
 
 export default class ScheduleModal extends ModalBuilder {
     private id:string;
@@ -59,6 +60,7 @@ export default class ScheduleModal extends ModalBuilder {
         const time = interaction.fields.getTextInputValue("EndTimeInput");
 
         if(!date || !time) {
+            ERR("Missing Fields");
             await interaction.reply({ 
                 content: 'There was an error while submiting this modal!', 
                 ephemeral: true 
@@ -78,7 +80,13 @@ export default class ScheduleModal extends ModalBuilder {
         ScheduleHandler.reschedulePoll(poll, dateTime);
 
         const msg =  `The poll "${poll.title}" was rescheduled by ${interaction.user.tag} to end on ${DateFuncions.convertToDiscordTime(poll.endDate)}`;
-        await interaction.reply({
+        interaction.reply({
+            content:"Success",
+            ephemeral: true
+        });
+        interaction.deleteReply();
+
+        await interaction.channel?.send({
             content: msg
         });
     }

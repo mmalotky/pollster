@@ -4,6 +4,7 @@ import fs from "fs";
 import {readFile, readdir} from "fs/promises";
 import DateFuncions from "../utility/DateFunctions.js";
 import ScheduleHandler from "./ScheduleHandler.js";
+import { ERR, INFO, WARN } from "../utility/LogMessage.js";
 
 export default class DataHandler {
     private static DATA_PATH = "./data";
@@ -14,7 +15,7 @@ export default class DataHandler {
     }
 
     public setup() {
-        console.log("[INFO] Setting up polls");
+        INFO("Setting up polls");
         this.runPath(DataHandler.DATA_PATH);
     }
 
@@ -30,14 +31,13 @@ export default class DataHandler {
             const data = fs.readFileSync(path, { encoding: "utf-8" });
             const poll:Poll = JSON.parse(data);
             if(!poll.channel) {
-                return console.log(`[ERR] Poll ${poll.id} missing channel.`);
+                return ERR(`Poll ${poll.id} missing channel.`);
             }
 
             poll.endDate = new Date(poll.endDate);
 
             const channel = await this.getChannel(poll.channel.id);
-            if(!channel) return console.log(`[ERR] Could not find Channel ${poll.channel.id}.`);
-            if(!channel.isTextBased()) return console.log(`[ERR] Channel ${poll.channel.id} is not a valid type.`);
+            if(!channel) return;
             poll.channel = channel;
 
             if(DateFuncions.isExpired(poll.endDate)) {
@@ -51,7 +51,7 @@ export default class DataHandler {
 
 	public static async addPoll(poll:Poll) {
         if(!poll.channel) {
-            return console.log(`[ERR] Poll ${poll.id} missing channel.`);
+            return ERR(`Poll ${poll.id} missing channel.`);
         }
         const path = this.getFilePath(poll.id, poll.channel.id);
         const folderPath = path.substring(0, path.lastIndexOf("/"));
@@ -63,7 +63,7 @@ export default class DataHandler {
 
     public static async setPoll(poll:Poll, value: boolean | Option[] | Date) {
         if(!poll.channel) {
-            return console.log(`[ERR] Poll ${poll.id} missing channel.`);
+            return ERR(`Poll ${poll.id} missing channel.`);
         }
 
         if(typeof value === "boolean") {
@@ -85,7 +85,7 @@ export default class DataHandler {
 
     public static async removePoll(poll:Poll) {
         if(!poll.channel) {
-            return console.log(`[ERR] Poll ${poll.id} missing channel.`);
+            return ERR(`Poll ${poll.id} missing channel.`);
         }
         const path = this.getFilePath(poll.id, poll.channel.id);
         fs.rm(path, (err) => this.handleIOErr(err));
@@ -93,7 +93,7 @@ export default class DataHandler {
 
     public static async getPoll(pollID:string, channel:TextBasedChannel | null) {
         if(!channel) {
-            return console.log(`[ERR] Poll ${pollID} missing channel.`);
+            return ERR(`Poll ${pollID} missing channel.`);
         }
         const path = this.getFilePath(pollID, channel.id);
         try {
@@ -131,7 +131,7 @@ export default class DataHandler {
                 }
             }
             else {
-                console.log(`[ERR]: Option ${selection} does not exist in Poll ${poll.id}`)
+                WARN(`Option ${selection} does not exist in Poll ${poll.id}`)
             }
         }
         
@@ -155,6 +155,9 @@ export default class DataHandler {
     }
 
     private async getChannel(channelID:string) {
-        return await this.client.channels.fetch(channelID);
+        const channel = await this.client.channels.fetch(channelID);
+        if(!channel) return ERR(`Could not find Channel ${channelID}.`);
+        if(!channel.isTextBased()) return console.log(`[ERR] Channel ${channel.id} is not a valid type.`);
+        return channel;
     }
 }

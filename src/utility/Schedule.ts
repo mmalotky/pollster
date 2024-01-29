@@ -21,7 +21,7 @@ export default class Schedule {
     }
 
     public removeEvents(id:string) {
-        const events = this.schedule.get(id);
+        const events = this.getEvents(id);
         if(events) events.forEach(e => e.stop());
         this.schedule.delete(id);
     }

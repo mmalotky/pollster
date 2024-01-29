@@ -3,6 +3,7 @@ import DateFuncions from "../utility/DateFunctions";
 import ResultsChart from "../components/ResultsChart";
 import DataHandler from "./DataHandler";
 import Schedule from "../utility/Schedule";
+import { ERR } from "../utility/LogMessage";
 
 export default class ScheduleHandler {
     private static schedule = new Schedule();
@@ -32,7 +33,7 @@ export default class ScheduleHandler {
 
         if(!poll.active) return;
         if(!poll.channel) {
-            console.log("[ERR] Channel is null");
+            ERR("Channel is null");
             return;
         }
 
@@ -44,7 +45,7 @@ export default class ScheduleHandler {
 
     private static sendReminder(poll:Poll, date:Date) {
         if(!poll.channel) {
-            console.log("[ERR] Channel is null");
+            ERR("Channel is null");
             return;
         }
 

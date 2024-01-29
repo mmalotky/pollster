@@ -1,11 +1,10 @@
 import { ModalBuilder, TextInputBuilder } from "@discordjs/builders";
-import { ActionRowBuilder, ButtonBuilder, ModalSubmitInteraction, TextInputStyle } from "discord.js";
+import { ActionRowBuilder, ButtonBuilder, HeadingLevel, ModalSubmitInteraction, TextInputStyle, codeBlock, heading, italic, quote } from "discord.js";
 import NewPollReturnButton from "./NewPollReturnButton.js";
-import { Option, Poll } from "../utility/Poll.js";
+import { Option, Poll, createPoll } from "../utility/Poll.js";
 import DateFuncions from "../utility/DateFunctions.js";
 import StartPollButton from "./StartPollButton.js";
-import DataHandler from "../handlers/DataHandler.js";
-import ScheduleHandler from "../handlers/ScheduleHandler.js";
+import { ERR } from "../utility/LogMessage.js";
 
 export default class NewPollModal extends ModalBuilder {
     private id = `NewPollModal:${crypto.randomUUID()}`;
@@ -52,9 +51,11 @@ export default class NewPollModal extends ModalBuilder {
         }
         else {
             const { date, time } = DateFuncions.stringifyDateTime(dateTime);
-
+        
             this.titleInput.setValue(title);
-            this.optionsInput.setValue(options.flatMap(o => o.label).join(", "));
+            if(options.length > 0) {
+                this.optionsInput.setValue(options.flatMap(o => o.label).join(", "));
+            }
             this.endDateInput.setValue(date);
             this.endTimeInput.setValue(time);
         }
@@ -98,34 +99,22 @@ export default class NewPollModal extends ModalBuilder {
                 content: 'There was an error while submiting this modal!', 
                 ephemeral: true 
             });
-            return;
+            return ERR("Missing Required Fields");
         }
 
-        const optionValues = options.split(",").map(o => o.trim());
-        if(
-            optionValues.length == 0 
-            || optionValues.includes("") 
-            || optionValues.filter(o => o.length > 100).length > 0
-        ) errors.push("Options");
-        const optionList:Option[] = optionValues.map(o => {
-            const votes:string[] = [];
-            return {label:o, votes:votes}
-        });
+        const optionList = this.getOptions(options);
+        if(optionList.length === 0) errors.push("Options");
 
-        const dateTime = DateFuncions.parseDateTime(date, time);
-        if(!dateTime || DateFuncions.isExpired(dateTime)) errors.push("Date/Time");
+        let dateTime = DateFuncions.parseDateTime(date, time);
+        if(!dateTime) {
+            errors.push("Date/Time");
+            dateTime = DateFuncions.getTomorrow();
+        }
+        if(DateFuncions.isExpired(dateTime)) errors.push("Date/Time");
 
-        const newPoll:Poll = {
-            id:dataID,
-            title:title,
-            channel:interaction.channel,
-            options:optionList, 
-            endDate:(dateTime? dateTime: DateFuncions.getTomorrow()),
-            active:false
-        };
-
-        DataHandler.addPoll(newPoll);
-        ScheduleHandler.schedulePoll(newPoll);
+        const newPoll:Poll = createPoll(
+            dataID, title, interaction.channel, optionList, dateTime, false
+        )
         
         const returnButton = new NewPollReturnButton(dataID);
         const startbutton = new StartPollButton(dataID);
@@ -135,16 +124,18 @@ export default class NewPollModal extends ModalBuilder {
         if(errors.length > 0) {
             startbutton.setDisabled(true);
             await interaction.reply({
-                content: `Invalid:${errors}`, 
+                content: heading("Invalid\n", HeadingLevel.Three) 
+                    + quote(errors.toString()), 
                 components: [ar],
                 ephemeral: true
             });
         }
         else {
-            const msg = `Confirm details:\n`
-                + `Title = ${newPoll.title}\n`
-                + `Options = ${newPoll.options.flatMap(o=>o.label)}\n`
-                + `End Date = ${DateFuncions.convertToDiscordTime(newPoll.endDate)}`;
+            const msg = heading("Confirm Details\n", HeadingLevel.Three) 
+                + quote(`Title = ${newPoll.title}\n`)
+                + quote(`Options = ${newPoll.options.flatMap(o=>o.label)}\n`)
+                + quote(`End Date = ${DateFuncions.convertToDiscordTime(newPoll.endDate)}`);
+                
             
             interaction.reply({
                 content: msg, 
@@ -152,5 +143,20 @@ export default class NewPollModal extends ModalBuilder {
                 ephemeral: true
             });
         }
+    }
+
+    private static getOptions(optionsField:string) {
+        const optionValues = optionsField.split(",").map(o => o.trim());
+        if(
+            optionValues.length == 0 
+            || optionValues.includes("") 
+            || optionValues.filter(o => o.length > 100).length > 0
+        ) return [];
+        
+        const options:Option[] = optionValues.map(o => {
+            const votes:string[] = [];
+            return {label:o, votes:votes}
+        });
+        return options;
     }
 }

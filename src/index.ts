@@ -9,6 +9,7 @@ import { Poll } from "./utility/Poll.js";
 import ScheduleModal from "./components/ScheduleModal.js";
 import ActivePollsMenu from "./components/ActivePollsMenu.js";
 import DataHandler from "./handlers/DataHandler.js";
+import { ERR, INFO, WARN } from "./utility/LogMessage.js";
 
 class Init {
 	private client = new Client({
@@ -28,14 +29,14 @@ class Init {
 
 
 		this.client.once(Events.ClientReady, () => {
-			console.log("[INFO] Pollster Starting");
+			INFO("Pollster Starting");
 			this.commandsHandler.register();
 			this.dataHandler.setup();
 			this.handleCommands();
 			this.handleModals();
 			this.handleButtons();
 			this.handleMenuInteractions();
-			console.log("[INFO] Pollster Online")
+			INFO("Pollster Online")
 		});
 	}
 
@@ -47,14 +48,14 @@ class Init {
 				.filter(c => c.getData().name === interaction.commandName)[0];
 		
 			if (!command) {
-				console.error(`[ERR] No command matching ${interaction.commandName} was found.`);
+				WARN(`No command matching ${interaction.commandName} was found.`);
 				return;
 			}
 		
 			try {
 				await command.execute(interaction);
 			} catch (error) {
-				console.error(error);
+				ERR(error);
 				if (interaction.replied || interaction.deferred) {
 					await interaction.followUp({ 
 						content: 'There was an error while executing this command!', 
@@ -132,7 +133,7 @@ class Init {
 			execute(interaction, poll);
 		}
 		else {
-			console.log(`[ERR] Poll ${dataID} data not found.`);
+			ERR(`Poll ${dataID} data not found.`);
 			interaction.reply({
 				content:"Poll data was lost or corrupted. Please make a new poll.",
 				ephemeral:true

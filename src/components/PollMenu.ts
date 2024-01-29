@@ -28,8 +28,10 @@ export default class PollMenu extends StringSelectMenuBuilder {
         DataHandler.vote(poll, selections, interaction.user.username);
 
         await interaction.reply({
-            content:`${bold(poll.title)}\nSelected: ${selections}`,
+            content:`${bold(poll.title)}\nYou selected: ${selections}`,
             ephemeral:true
         })
+
+        interaction.deleteReply();
     }
 }
