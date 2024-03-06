@@ -2,7 +2,7 @@ import { Client, TextBasedChannel } from "discord.js";
 import { Poll, Option } from "../utility/Poll.js";
 import fs from "fs";
 import {readFile, readdir} from "fs/promises";
-import DateFuncions from "../utility/DateFunctions.js";
+import DateFunctions from "../utility/DateFunctions.js";
 import ScheduleHandler from "./ScheduleHandler.js";
 import { ERR, INFO, WARN } from "../utility/LogMessage.js";
 
@@ -40,7 +40,7 @@ export default class DataHandler {
             if(!channel) return;
             poll.channel = channel;
 
-            if(DateFuncions.isExpired(poll.endDate)) {
+            if(DateFunctions.isExpired(poll.endDate)) {
                 DataHandler.removePoll(poll);
             }
             else {

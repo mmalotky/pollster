@@ -1,13 +1,13 @@
 import { CronJob } from "cron";
 import { Collection } from "discord.js";
-import DateFuncions from "./DateFunctions";
+import DateFunctions from "./DateFunctions";
 import { Poll } from "./Poll";
 
 export default class Schedule {
     private schedule = new Collection<string, CronJob<null,null>[]>();
 
     public addEvent(date:Date, payload:Poll, execute:(paylod:Poll, date:Date)=>void) {
-        if(DateFuncions.isExpired(date)) return;
+        if(DateFunctions.isExpired(date)) return;
 
         const event = new CronJob(date, () => execute(payload, date));
 

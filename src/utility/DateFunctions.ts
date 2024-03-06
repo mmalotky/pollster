@@ -1,6 +1,6 @@
 import { WARN } from "./LogMessage";
 
-export default class DateFuncions {
+export default class DateFunctions {
     public static parseDateTime(date:string, time:string) {
 		const reDate = /^[0-9]{2}\/[0-9]{2}\/[0-9]{4}$/;
 		const reTime = /^[0-9]{2}:[0-9]{2}$/;

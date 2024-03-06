@@ -1,6 +1,6 @@
-import { ActionRowBuilder, Interaction, InteractionResponseType, ModalBuilder, TextInputBuilder, TextInputStyle } from "discord.js";
+import { ActionRowBuilder, Interaction, ModalBuilder, TextInputBuilder, TextInputStyle } from "discord.js";
 import { Poll } from "../utility/Poll.js";
-import DateFuncions from "../utility/DateFunctions.js";
+import DateFunctions from "../utility/DateFunctions.js";
 import ScheduleHandler from "../handlers/ScheduleHandler.js";
 import { ERR } from "../utility/LogMessage.js";
 
@@ -8,7 +8,7 @@ export default class ScheduleModal extends ModalBuilder {
     private id:string;
     private title:string;
     
-    private timezone = DateFuncions.getTimeZone();
+    private timezone = DateFunctions.getTimeZone();
     
     private endDateInput = new TextInputBuilder()
         .setCustomId("EndDateInput")
@@ -29,7 +29,7 @@ export default class ScheduleModal extends ModalBuilder {
     constructor(poll:Poll) {
         super();
 
-        const { date, time } = DateFuncions.stringifyDateTime(poll.endDate);
+        const { date, time } = DateFunctions.stringifyDateTime(poll.endDate);
         this.endDateInput.setValue(date);
         this.endTimeInput.setValue(time);
 
@@ -68,7 +68,7 @@ export default class ScheduleModal extends ModalBuilder {
             return;
         }
 
-        const dateTime = DateFuncions.parseDateTime(date, time);
+        const dateTime = DateFunctions.parseDateTime(date, time);
         if(!dateTime || dateTime.getTime() < Date.now()) {
             await interaction.reply({ 
                 content: 'Invalid date/time', 
@@ -79,7 +79,7 @@ export default class ScheduleModal extends ModalBuilder {
 
         ScheduleHandler.reschedulePoll(poll, dateTime);
 
-        const msg =  `The poll "${poll.title}" was rescheduled by ${interaction.user.tag} to end on ${DateFuncions.convertToDiscordTime(poll.endDate)}`;
+        const msg =  `The poll "${poll.title}" was rescheduled by ${interaction.user.tag} to end on ${DateFunctions.convertToDiscordTime(poll.endDate)}`;
         interaction.reply({
             content:"Success",
             ephemeral: true

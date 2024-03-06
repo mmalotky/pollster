@@ -1,5 +1,5 @@
 import { Poll } from "../utility/Poll";
-import DateFuncions from "../utility/DateFunctions";
+import DateFunctions from "../utility/DateFunctions";
 import ResultsChart from "../components/ResultsChart";
 import DataHandler from "./DataHandler";
 import Schedule from "../utility/Schedule";
@@ -49,7 +49,7 @@ export default class ScheduleHandler {
             return;
         }
 
-        const countDown = DateFuncions.getTimeDifference(poll.endDate, date);
+        const countDown = DateFunctions.getTimeDifference(poll.endDate, date);
         const message = `${poll.title} ends in ${countDown}`;
         
         poll.channel.send(message);
