@@ -63,14 +63,14 @@ export default class DateFunctions {
 
     public static getTomorrow() {
         const dateTime = new Date();
-        const tomorrow = new Date(dateTime)
+        const tomorrow = new Date(dateTime);
         tomorrow.setDate(dateTime.getDate() + 1);
         return tomorrow;
     }
 
 	public static getTimeDifference(d1:Date, d2:Date) {
 		let result = "";
-		let diff = d1.getTime() - d2.getTime();
+		let diff = Math.abs(d1.getTime() - d2.getTime());
 		
 		const days = Math.floor(diff/86400000);
 		if(days > 0) {
