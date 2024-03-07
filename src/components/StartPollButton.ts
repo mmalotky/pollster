@@ -1,7 +1,9 @@
-import { ActionRowBuilder, ButtonBuilder, ButtonStyle, Interaction, StringSelectMenuBuilder, bold } from "discord.js";
-import { Poll, scheduleReminders } from "../utility/Poll.js";
+import { ActionRowBuilder, ButtonBuilder, ButtonStyle, HeadingLevel, Interaction, StringSelectMenuBuilder, heading, quote } from "discord.js";
 import PollMenu from "./PollMenu.js";
+import { Poll } from "../utility/Poll.js";
 import DateFuncions from "../utility/DateFunctions.js";
+import DataHandler from "../handlers/DataHandler.js";
+import ScheduleHandler from "../handlers/ScheduleHandler.js"
 
 export default class StartPollButton extends ButtonBuilder {
     constructor(id:string) {
@@ -25,19 +27,23 @@ export default class StartPollButton extends ButtonBuilder {
             return;
         }
 
-        poll.active = true;
-        poll.channel = interaction.channel;
-        
+        DataHandler.setPoll(poll, true);
+        ScheduleHandler.schedulePoll(poll);
+
         const ar = new ActionRowBuilder<StringSelectMenuBuilder>();
         const pollMenu = new PollMenu(poll);
         ar.addComponents(pollMenu);
 
-        await interaction.reply({
-            content:`${bold(poll.title)}\n`
-                + `Ends ${DateFuncions.convertToDiscordTime(poll.endDate)}`,
+        interaction.reply({
+            content:"Success",
+            ephemeral: true
+        });
+        interaction.deleteReply();
+
+        const message = await interaction.channel?.send({
+            content:`${heading(poll.title, HeadingLevel.Two)}\n`
+                + quote(`Ends on ${DateFuncions.convertToDiscordTime(poll.endDate)}`),
             components:[ar]
         });
-
-        scheduleReminders(poll);
     }
 }

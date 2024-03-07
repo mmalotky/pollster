@@ -3,12 +3,13 @@ import { Client, IntentsBitField, Events, ButtonInteraction, StringSelectMenuInt
 import CommandsHandler from "./handlers/CommandsHandler.js";
 import NewPollModal from "./components/NewPollModal.js";
 import NewPollReturnButton from "./components/NewPollReturnButton.js";
-import { DataHandlerObject } from "./handlers/DataHandler.js";
 import StartPollButton from "./components/StartPollButton.js";
 import PollMenu from "./components/PollMenu.js";
 import { Poll } from "./utility/Poll.js";
 import ScheduleModal from "./components/ScheduleModal.js";
 import ActivePollsMenu from "./components/ActivePollsMenu.js";
+import DataHandler from "./handlers/DataHandler.js";
+import { ERR, INFO, WARN } from "./utility/LogMessage.js";
 
 class Init {
 	private client = new Client({
@@ -20,6 +21,7 @@ class Init {
 		]
 	});
 	private commandsHandler = new CommandsHandler();
+	private dataHandler = new DataHandler(this.client);
 
 	main() {
 		dotenv.config();
@@ -27,13 +29,14 @@ class Init {
 
 
 		this.client.once(Events.ClientReady, () => {
-			console.log("[INFO] Pollster Starting");
+			INFO("Pollster Starting");
 			this.commandsHandler.register();
+			this.dataHandler.setup();
 			this.handleCommands();
 			this.handleModals();
 			this.handleButtons();
 			this.handleMenuInteractions();
-			console.log("[INFO] Pollster Online")
+			INFO("Pollster Online")
 		});
 	}
 
@@ -45,14 +48,14 @@ class Init {
 				.filter(c => c.getData().name === interaction.commandName)[0];
 		
 			if (!command) {
-				console.error(`[ERR] No command matching ${interaction.commandName} was found.`);
+				WARN(`No command matching ${interaction.commandName} was found.`);
 				return;
 			}
 		
 			try {
 				await command.execute(interaction);
 			} catch (error) {
-				console.error(error);
+				ERR(error);
 				if (interaction.replied || interaction.deferred) {
 					await interaction.followUp({ 
 						content: 'There was an error while executing this command!', 
@@ -124,14 +127,14 @@ class Init {
 		) => Promise<void>,
 		interaction:ButtonInteraction | StringSelectMenuInteraction | ModalSubmitInteraction
 	) {
-		const poll = DataHandlerObject.getPoll(dataID);
+		const poll = await DataHandler.getPoll(dataID, interaction.channel);
 
 		if(poll) {
-			await execute(interaction, poll);
+			execute(interaction, poll);
 		}
 		else {
-			console.log(`[ERR] Poll ${dataID} data not found.`);
-			await interaction.reply({
+			ERR(`Poll ${dataID} data not found.`);
+			interaction.reply({
 				content:"Poll data was lost or corrupted. Please make a new poll.",
 				ephemeral:true
 			})

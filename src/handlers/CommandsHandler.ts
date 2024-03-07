@@ -3,6 +3,7 @@ import { REST, RESTPostAPIChatInputApplicationCommandsJSONBody, Routes} from "di
 import PollCommand from "../commands/PollCommand.js";
 import Command from "../commands/Command.js";
 import ScheduleCommand from "../commands/ScheduleCommand.js";
+import { ERR, INFO } from "../utility/LogMessage.js";
 
 export default class CommandsHandler {
     private commands:Command[] = [];
@@ -21,7 +22,7 @@ export default class CommandsHandler {
         this.commandsJSON.push(scheduleCommand.getData().toJSON());
 
         if(process.env.TOKEN) this.rest.setToken(process.env.TOKEN);
-        else console.log("[ERR]: No token found");
+        else ERR("No Token Found");
     }
 
     getCommands() {
@@ -30,7 +31,7 @@ export default class CommandsHandler {
 
     register() {
         try {
-            console.log("[INFO] Registering commands...");
+            INFO("Registering commands...");
     
             if(process.env.CLIENT_ID && process.env.SERVER_ID) {
                 this.rest.put(
@@ -38,10 +39,10 @@ export default class CommandsHandler {
                     {body: this.commandsJSON}
                 )
     
-                console.log("[INFO]...Commands Registered");
+                INFO("...Commands Registered");
             }
-            else console.log("[ERR] Client/ Server ID's not Found");
+            else ERR("Client/ Server ID's not Found");
         }
-        catch(err) {console.log(err)}
+        catch(err) { ERR(err) }
     }
 }

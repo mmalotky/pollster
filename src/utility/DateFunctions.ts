@@ -1,9 +1,11 @@
-export default class DateFuncions {
+import { WARN } from "./LogMessage";
+
+export default class DateFunctions {
     public static parseDateTime(date:string, time:string) {
 		const reDate = /^[0-9]{2}\/[0-9]{2}\/[0-9]{4}$/;
 		const reTime = /^[0-9]{2}:[0-9]{2}$/;
 		if(!date.match(reDate) || !time.match(reTime)) {
-			console.log("[ERR] Invalid date or time.");
+			WARN("Invalid date or time.");
 			return;
 		}
 		const dateValues = date.split("/");
@@ -11,29 +13,29 @@ export default class DateFuncions {
 
 		const month = parseInt(dateValues[0]);
 		if(month < 1 || month > 12) {
-			console.log("[ERR] Invalid Month");
+			WARN("Invalid Month");
 			return;
 		}
 		const day = parseInt(dateValues[1]);
 		if(day < 1 || day > 31) {
-			console.log("[ERR] Invalid date");
+			WARN("Invalid date");
 			return;
 		}
 		const hour = parseInt(timeValues[0]);
 		if(hour < 0 || hour > 24) {
-			console.log("[ERR] Invalid Hour")
+			WARN("Invalid Hour")
 			return;
 		}
 		const minute = parseInt(timeValues[1]);
 		if(minute < 0 || minute > 59) {
-			console.log("[ERR] Invaild Minute");
+			WARN("Invaild Minute");
 			return;
 		}
 		
 		const dateTimeFormat = `${dateValues[2]}-${dateValues[0]}-${dateValues[1]}T${timeValues[0]}:${timeValues[1]}`;
 		const dateTime = new Date(dateTimeFormat);
 		if(isNaN(dateTime.getTime())) {
-			console.log("[ERR] Could not parse date: " + dateTimeFormat);
+			WARN("Could not parse date: " + dateTimeFormat);
 			return;
 		}
 		
@@ -61,14 +63,14 @@ export default class DateFuncions {
 
     public static getTomorrow() {
         const dateTime = new Date();
-        const tomorrow = new Date(dateTime)
+        const tomorrow = new Date(dateTime);
         tomorrow.setDate(dateTime.getDate() + 1);
         return tomorrow;
     }
 
 	public static getTimeDifference(d1:Date, d2:Date) {
 		let result = "";
-		let diff = d1.getTime() - d2.getTime();
+		let diff = Math.abs(d1.getTime() - d2.getTime());
 		
 		const days = Math.floor(diff/86400000);
 		if(days > 0) {
@@ -101,5 +103,9 @@ export default class DateFuncions {
 		
 		if(!match) return `UTC ${new Date().getTimezoneOffset() / 60}`;
 		else return match[0];
+	}
+
+	public static isExpired(date:Date) {
+		return date.getTime() < Date.now();
 	}
 }

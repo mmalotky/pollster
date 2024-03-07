@@ -1,7 +1,7 @@
 import { ButtonBuilder, ButtonStyle, Interaction } from "discord.js";
 import NewPollModal from "./NewPollModal.js";
 import { Poll } from "../utility/Poll.js";
-import { DataHandlerObject } from "../handlers/DataHandler.js";
+import DataHandler from "../handlers/DataHandler.js";
 
 export default class NewPollReturnButton extends ButtonBuilder {
     
@@ -32,7 +32,7 @@ export default class NewPollReturnButton extends ButtonBuilder {
             poll.endDate
         );
 
-        DataHandlerObject.removePoll(poll.id);
+        DataHandler.removePoll(poll);
 
         await interaction.showModal(modal);
     }

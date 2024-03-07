@@ -23,25 +23,29 @@
   "scripts": {
     "watch": "npm-watch",
     "start": "tsx ./src/index.ts",
-    "lint": "eslint --fix ."
+    "lint": "eslint --fix .",
+    "test": "jest"
   },
   "devDependencies": {
+    "@types/jest": "*",
     "@typescript-eslint/eslint-plugin": "*",
     "@typescript-eslint/parser": "*",
     "eslint": "*",
     "eslint-plugin-tsdoc": "*",
-    "npm-watch": "*"
+    "npm-watch": "*",
+    "ts-jest": "*"
   },
   "dependencies": {
     "@swc/core": "*",
     "@types/node": "*",
+    "cron": "*",
     "discord.js": "*",
     "dotenv": "*",
+    "fs": "*",
     "node": "*",
-    "tsx": "*",
+    "quickchart-js": "*",
     "tsconfig-paths": "*",
-    "typescript": "*",
-    "cron":"*",
-    "quickchart-js": "*"
+    "tsx": "*",
+    "typescript": "*"
   }
 }

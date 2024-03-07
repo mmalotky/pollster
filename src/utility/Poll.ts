@@ -1,38 +1,39 @@
 import { TextBasedChannel } from "discord.js";
-import ScheduleHandler from "../handlers/ScheduleHandler.js";
-import { DataHandlerObject } from "../handlers/DataHandler.js";
+import DataHandler from "../handlers/DataHandler";
+import ScheduleHandler from "../handlers/ScheduleHandler";
 
-export type Poll = {
-    id:string;
+export interface Poll {
     title:string;
-    channel:TextBasedChannel | null;
     options:Option[];
+    id:string;
+    channel:TextBasedChannel | null;
     endDate:Date;
     active:boolean;
 }
 
 export type Option = {
     label:string;
-    votes:Set<string>;
+    votes:string[];
 }
 
-export function schedulePoll(poll:Poll) {
-    ScheduleHandler.createJob(poll, poll.endDate);
-}
+export function createPoll(
+    dataID:string,
+    title:string, 
+    channel:TextBasedChannel | null, 
+    options:Option[],
+    endDate:Date,
+    active:boolean
+) {
+    const poll:Poll = {
+        id:dataID,
+        title:title,
+        channel:channel,
+        options:options, 
+        endDate:endDate,
+        active:active
+    };
 
-export function scheduleReminders(poll:Poll) {
-    const hourReminder = new Date(poll.endDate);
-    hourReminder.setHours(hourReminder.getHours() - 1);
-    ScheduleHandler.createJob(poll, hourReminder);
-
-    const dayReminder = new Date(poll.endDate);
-    dayReminder.setDate(dayReminder.getDate() - 1);
-    ScheduleHandler.createJob(poll, dayReminder);
-}
-
-export function reschedulePoll(poll:Poll, date:Date) {
-    poll.endDate = date;
-    DataHandlerObject.removeEvents(poll.id);
-    schedulePoll(poll);
-    scheduleReminders(poll);
+    DataHandler.addPoll(poll);
+    ScheduleHandler.schedulePoll(poll);
+    return poll;
 }
