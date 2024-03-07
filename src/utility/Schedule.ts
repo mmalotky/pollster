@@ -23,10 +23,14 @@ export default class Schedule {
     public removeEvents(id:string) {
         const events = this.getEvents(id);
         if(events) events.forEach(e => e.stop());
-        this.schedule.delete(id);
+        return this.schedule.delete(id);
     }
 
     public getEvents(id:string) {
         return this.schedule.get(id);
+    }
+
+    public getQueueSize() {
+        return this.schedule.size;
     }
 }

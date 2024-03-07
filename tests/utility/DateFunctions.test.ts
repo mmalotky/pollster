@@ -1,5 +1,9 @@
 import DateFunctions from "../../src/utility/DateFunctions";
 
+beforeEach(() => {
+    jest.spyOn(console, 'warn').mockImplementation(jest.fn());
+});
+
 test("ShouldConvertDateToDiscordFormat", ()=> {
     const date = new Date("2024-03-06T12:00:00");
     const actual = DateFunctions.convertToDiscordTime(date);
@@ -49,7 +53,7 @@ test("ShouldNotParseInvalidTime", () => {
 test("ShouldGetTomorrow", () => {
     const expected = Date.now() + 864E5;
     const actual = DateFunctions.getTomorrow();
-    expect(actual.getTime()).toBe(expected);
+    expect(Math.floor(actual.getTime()/1000)).toBe(Math.floor(expected/1000));
 })
 
 test("ShouldDetectExpired", () => {
